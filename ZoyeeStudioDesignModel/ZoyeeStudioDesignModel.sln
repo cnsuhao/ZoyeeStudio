@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZoyeeStudioDesignModel", "ZoyeeStudioDesignModel\ZoyeeStudioDesignModel.vcxproj", "{59319ABC-3D7D-4796-9C58-0A7CFA22F28F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{59319ABC-3D7D-4796-9C58-0A7CFA22F28F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{59319ABC-3D7D-4796-9C58-0A7CFA22F28F}.Debug|Win32.Build.0 = Debug|Win32
+		{59319ABC-3D7D-4796-9C58-0A7CFA22F28F}.Release|Win32.ActiveCfg = Release|Win32
+		{59319ABC-3D7D-4796-9C58-0A7CFA22F28F}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
