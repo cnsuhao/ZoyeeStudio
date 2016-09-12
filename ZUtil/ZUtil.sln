@@ -5,7 +5,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZUtil", "ZUtil.vcxproj", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestPro", "..\TestPro\TestPro.vcxproj", "{45D62C9B-0D94-4700-AF18-17741E9BE35A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qtexe", "qtexe\qtexe.vcxproj", "{E42FCDFF-D9B5-4DBC-B5DD-E9696994758A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MFC", "..\MFC\MFC.vcxproj", "{839641BE-4750-4296-8FA9-8C85881283B7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QtExe", "QtExe\QtExe.vcxproj", "{BD33681D-EF61-4D29-B7F9-973F2C11A55D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo", "..\Demo\Demo.vcxproj", "{EFD960C4-F79D-43E0-A3EA-1860396B5105}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,10 +25,18 @@ Global
 		{45D62C9B-0D94-4700-AF18-17741E9BE35A}.Debug|Win32.Build.0 = Debug|Win32
 		{45D62C9B-0D94-4700-AF18-17741E9BE35A}.Release|Win32.ActiveCfg = Release|Win32
 		{45D62C9B-0D94-4700-AF18-17741E9BE35A}.Release|Win32.Build.0 = Release|Win32
-		{E42FCDFF-D9B5-4DBC-B5DD-E9696994758A}.Debug|Win32.ActiveCfg = Debug|Win32
-		{E42FCDFF-D9B5-4DBC-B5DD-E9696994758A}.Debug|Win32.Build.0 = Debug|Win32
-		{E42FCDFF-D9B5-4DBC-B5DD-E9696994758A}.Release|Win32.ActiveCfg = Release|Win32
-		{E42FCDFF-D9B5-4DBC-B5DD-E9696994758A}.Release|Win32.Build.0 = Release|Win32
+		{839641BE-4750-4296-8FA9-8C85881283B7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{839641BE-4750-4296-8FA9-8C85881283B7}.Debug|Win32.Build.0 = Debug|Win32
+		{839641BE-4750-4296-8FA9-8C85881283B7}.Release|Win32.ActiveCfg = Release|Win32
+		{839641BE-4750-4296-8FA9-8C85881283B7}.Release|Win32.Build.0 = Release|Win32
+		{BD33681D-EF61-4D29-B7F9-973F2C11A55D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BD33681D-EF61-4D29-B7F9-973F2C11A55D}.Debug|Win32.Build.0 = Debug|Win32
+		{BD33681D-EF61-4D29-B7F9-973F2C11A55D}.Release|Win32.ActiveCfg = Release|Win32
+		{BD33681D-EF61-4D29-B7F9-973F2C11A55D}.Release|Win32.Build.0 = Release|Win32
+		{EFD960C4-F79D-43E0-A3EA-1860396B5105}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EFD960C4-F79D-43E0-A3EA-1860396B5105}.Debug|Win32.Build.0 = Debug|Win32
+		{EFD960C4-F79D-43E0-A3EA-1860396B5105}.Release|Win32.ActiveCfg = Release|Win32
+		{EFD960C4-F79D-43E0-A3EA-1860396B5105}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
