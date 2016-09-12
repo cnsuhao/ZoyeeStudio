@@ -19,18 +19,37 @@ SocketConnect
 LockKey
 	|__Lock
 
+stringex
+
 ServiceManage
 
 FileManage
 
+Process
+
+Time(unfinish)
+
+Log(unfinish)
+
+FindFile
+	|__FileInfo
+
+FileAttribute
+
+Thread
+
+ThreadPool(coding)
+
 /////////////////////////////////////////////////////////////////////////*/
 #include <windows.h>
 #include <iostream>
-#define NO_USE_STL
+//#define NO_USE_STL
 
 #ifndef NO_USE_STL
 #include <vector>
+#include <map>
 #include <string>
+#include <list>
 using namespace std;
 #endif
 
@@ -127,19 +146,44 @@ namespace ZUtil
 		};
 	};
 
-	class String{
+	class string{
 	public:
-		String(char* sz, int nLen);
-		String(wchar_t* wsz, int nLen);
-		String(int nValue);
-		~String();
+		string(std::string& strSrc);
+		string(char* pSrc, int nLen);
+		string(char* pSrc);
+		~string();
 
-		int ToInt();
-		char* ToString();
-		int ToWChar(wchar_t* pRes);		
-		int ToChar(char* pRes);
-	protected:
-		char* pData;
+		void Reset();
+		std::string CopyStdString();
+		std::string* GetStdString();
+		ZUtil::string& Lower();
+		ZUtil::string& Upper();
+		int Number();
+		int Length();
+		int Size();
+		
+		bool Split(char* pSplit, std::vector<std::string>& vec);
+
+	private:
+		std::string strSrc;
+	};
+
+	class stringex : public std::string{
+	public:
+		stringex();
+		stringex(char* pSrc, int nLen);
+		stringex(const stringex& str);
+		stringex(char* pSrc);
+		stringex(int value);
+		~stringex();
+
+		stringex& Lower();
+		stringex& Upper();
+
+		int Number();
+		double DoubleNumber();
+
+		bool Split(char* pSplit, std::vector<stringex>& vec);
 	};
 
 	class Time{
@@ -279,18 +323,96 @@ namespace ZUtil
 		static int _Create(char* pCmd, __out PROCESS_INFORMATION& pi);
 	};
 
-	class ServiceManage;
+	class ServiceManage{
+	public:
+		ServiceManage();
+		~ServiceManage();
+
+		int RunService(const char* pServiceName);
+		int StopService(const char* pServiceName);
+		int CreateKernelService(const char* pPath, const char* pName, const char* pDisplayName);
+		int DeleteService(const char* pName);
+
+	private:
+		SC_HANDLE hServiceMgr;
+	};
 
 	class FileManage{
 	public:
 		FileManage();
 		static void CreateDir(char* pDir);
 		static bool RemoveDir(char* pDir);
-
+		static bool CheckFileExist(char* pFile);
 		static int ReadFile(char* pFile, __out char* pRes, __in int nResLen);
 		static int WriteFile(char* pFileName, char* pData, int nLen, bool bAppend = true);//bAppend追加
 		static int DelFile(char* pFileName);
 		static int MoveFile(char* pFileName, char* pNewFileName, bool bRemoveOld = false, bool bReWriteIsExist = false);//bRemoveOld 转移后是否要删除源文件, bReWriteIsExist 若目标地址有同名文件在, 是否尝试覆盖
+	};
+
+	class FindFile{
+	public:
+		class FileInfo{
+		public:
+			FileInfo(
+				std::string strFilePath, 
+				std::string strName, 
+				bool bIsDir);
+			FileInfo(
+				std::string strFileName,
+				std::string strFilePath,
+				std::string strExt,
+				bool bIsDir);
+
+			std::string GetName();
+			std::string GetPath();
+			std::string GetExt();
+			bool IsDir();
+
+			void SetInfo(
+				std::string strFilePath, 
+				std::string strName, 
+				bool bIsDir);
+			
+		protected:
+			bool bIsDir;
+			std::string strFileName;
+			std::string strFilePath;
+			std::string strExt;
+		};
+
+		FindFile(char* pRoot);
+		std::map<std::string, FileInfo>* GetMap();
+		std::string GetRoot();
+
+	protected:
+		int Find(char* pParent, std::list<FileInfo>& vec);
+		void Run();
+	private:
+		std::map<std::string, FileInfo> _map;
+		std::string strRoot;
+	};
+
+	class FileAttribute{
+	public:
+		FileAttribute(char* pFileName);
+		long Size();
+		std::string CreateTime();
+		std::string AcceseTime();
+		std::string WriteTime();
+		std::string Ext();
+		std::string Path();
+		std::string FileName();
+		bool IsDir();
+
+	private:
+		std::string strName;
+		std::string strExt;
+		std::string strPath;
+		char szCreateTime[32];
+		char szAcceseTime[32];
+		char szWriteTime[32];
+		long lSize;
+		bool bIsDir;
 	};
 
 	class LockKey{
@@ -313,7 +435,7 @@ namespace ZUtil
 #define __KEY__ ZUtil::LockKey key;
 #define __LOCK__ ZUtil::Lock lock(&key);
 
-	//class AnnulusStore{//环形存储区
+	//class AnnulusStore{//环形存储区, 先放弃开发
 	//public:
 	//	AnnulusStore(unsigned int nSize);
 	//	~AnnulusStore();
@@ -328,7 +450,7 @@ namespace ZUtil
 	//};
 
 	class Log{
-		Log(char* pLogPath, int nMaxLogFileSize = 10*1024);
+		Log(char* pLogPath, int nMaxLogFileSize = 10 * 1024);
 		void WriteLog(int level, char* pModule, const char* pFmt, ...);		
 	protected:
 		__KEY__;
@@ -336,8 +458,10 @@ namespace ZUtil
 
 	class Thread{
 	public:
+		Thread();
 		Thread(void* pParam, pThreadEvent pFunc = nullptr);
 		virtual int Run() = 0;
+		void SetThreadEventFunc(pThreadEvent pFunc);
 		void WaitForFinish();
 		void Start();
 		void Pause();
@@ -350,6 +474,14 @@ namespace ZUtil
 		static int DefaultCallback(char* pData, int nLen, int nEventType);		
 		HANDLE hThread;
 		pThreadEvent pFunc;
+	};
+
+	class ThreadPool{
+	public:
+		ThreadPool();
+		void Add(Thread* task, bool bStartRightNow = true);
+	protected:
+		std::vector<Thread*> vecThreadTasks;
 	};
 
 	class SocketConnect{
@@ -434,9 +566,9 @@ namespace ZUtil
 	char* NewGuid();
 	const char* GetBuildDateTime();
 	void SetPrivilegeDebug();
-#ifndef NO_USE_STL
-	std::string NewGuid();
-#endif
+//#ifndef NO_USE_STL
+//	std::string NewGuid();
+//#endif
 }
 
 #define ZSOCKET_ERROR -1

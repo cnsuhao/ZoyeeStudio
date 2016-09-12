@@ -328,21 +328,21 @@ void ZUtil::ToWchar( char* pData, int nLen, __out wchar_t* pwData )
 {
 	MultiByteToWideChar(CP_ACP, 0, pData, -1, pwData, (nLen * 2));
 }
-#ifndef NO_USE_STL
-std::string ZUtil::NewGuid()
-{
-	char szGuid[64] = {0};
-	GUID guid;
-	if (S_OK == ::CoCreateGuid(&guid))
-	{
-		sprintf(szGuid, "%08X-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X", 
-			guid.Data1, guid.Data2, guid.Data3, guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3], guid.Data4[4], 
-			guid.Data4[5], guid.Data4[6], guid.Data4[7]);
-		return (szGuid);
-	}
-	return "";
-}
-#endif
+//#ifndef NO_USE_STL
+//std::string ZUtil::NewGuid()
+//{
+//	char szGuid[64] = {0};
+//	GUID guid;
+//	if (S_OK == ::CoCreateGuid(&guid))
+//	{
+//		sprintf(szGuid, "%08X-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X", 
+//			guid.Data1, guid.Data2, guid.Data3, guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3], guid.Data4[4], 
+//			guid.Data4[5], guid.Data4[6], guid.Data4[7]);
+//		return (szGuid);
+//	}
+//	return "";
+//}
+//#endif
 
 void ZUtil::NewGuid( __out char* pRes )
 {
@@ -796,14 +796,7 @@ void ZUtil::Register::ValueType::reset()
 	bStr = bMultiStr = bDword = false;
 }
 
-ZUtil::String::~String()
-{
-	if (this->pData)
-	{
-		delete pData;
-		pData = nullptr;
-	}
-}
+
 
 struct SPipeThreadData
 {
@@ -1629,6 +1622,22 @@ int ZUtil::FileManage::MoveFile( char* pFileName, char* pNewFileName, bool bRemo
 	return 0;
 }
 
+bool ZUtil::FileManage::CheckFileExist( char* pFile )
+{
+	if (_access(pFile, 0) == -1)
+	{
+		return false;
+	}
+	return true;
+}
+
+ZUtil::Thread::Thread()
+{
+	this->pParam = nullptr;
+	this->pFunc = DefaultCallback;
+	hThread = NULL;
+}
+
 ZUtil::Thread::Thread( void* pParam, pThreadEvent pFunc /*= nullptr*/ )
 {
 	this->pParam = pParam;
@@ -1705,6 +1714,11 @@ DWORD WINAPI ZUtil::Thread::Work( void* pParam )
 	pThread->hThread = nullptr;
 	pThread->pFunc("thread is finish", strlen("thread is finish"), THREAD_FINISH);
 	return nRes;
+}
+
+void ZUtil::Thread::SetThreadEventFunc( pThreadEvent pFunc )
+{
+	this->pFunc = pFunc;
 }
 
 ZUtil::Time::Time()
@@ -1811,3 +1825,555 @@ ZUtil::Time::TimeFmt ZUtil::Time::GetFmt()
 //	}
 //	return 0;
 //}
+
+ZUtil::string::string( std::string& strSrc )
+{
+	this->strSrc = strSrc;
+}
+
+ZUtil::string::string(char* pSrc, int nLen)
+{
+	this->strSrc = std::string(pSrc, nLen);
+}
+
+ZUtil::string::string(char* pSrc)
+{
+	this->strSrc = std::string(pSrc);
+}
+
+ZUtil::string::~string()
+{
+	printf("%s, %p\n", __FUNCTION__, this);
+}
+
+void ZUtil::string::Reset()
+{
+	this->strSrc = "";
+	this->strSrc.resize(0);
+}
+
+std::string ZUtil::string::CopyStdString()
+{
+	return strSrc;
+}
+
+int ZUtil::string::Number()
+{
+	return atoi(strSrc.c_str());
+}
+
+std::string* ZUtil::string::GetStdString()
+{
+	return &strSrc;
+}
+
+ZUtil::string& ZUtil::string::Lower()
+{
+	for (int i = 0; i < strSrc.length(); i++){
+		if (strSrc.at(i) >= 0x41 && strSrc.at(i) <= 0x5A){
+			strSrc.at(i) += 0x20;
+		}
+	}
+	return *this;
+}
+
+ZUtil::string& ZUtil::string::Upper()
+{
+	for (int i = 0; i < strSrc.length(); i++){
+		if (strSrc.at(i) >= 0x61 && strSrc.at(i) <= 0x7A){
+			strSrc.at(i) -= 0x20;
+		}
+	}
+	return *this;
+}
+
+int ZUtil::string::Length()
+{
+	return strSrc.length();
+}
+
+int ZUtil::string::Size()
+{
+	return strSrc.size();
+}
+
+
+
+bool ZUtil::string::Split( char* pSplit, std::vector<std::string>& vec )
+{
+	//int nSplitLen = strlen(pSplit);
+	//char* pSrc = new char[strSrc.length()];
+	//strcpy(&pSrc[0], strSrc.c_str());
+	//char* pText = strtok(pSrc, pSplit);
+	//bool bRes = false;
+
+	//while(pText != nullptr){
+	//	bRes = true;
+	//	vec.push_back(pText);
+	//	pText = strtok(nullptr, pSplit);
+	//}
+	//if (pText){
+	//	vec.push_back(pText);
+	//}
+	//return bRes;
+	if (pSplit == nullptr){
+		vec.push_back(strSrc);
+		return true;
+	}
+	std::string strSrc = this->strSrc;
+	int nPos = strSrc.find(pSplit);
+	if (nPos == -1){
+		return false;
+	}
+	int nLen = strlen(pSplit);
+	std::string strTemp;
+	while(nPos != -1){
+		while (nPos == 0){
+			strSrc.erase(0, nLen);
+			nPos = strSrc.find(pSplit);
+		}
+		strTemp = "";
+		strTemp = strSrc.substr(0, nPos);
+		vec.push_back(strTemp);
+		strSrc.erase(0, nPos + nLen);
+		nPos = strSrc.find(pSplit);
+	}
+
+	if ( ! strSrc.empty()){
+		vec.push_back(strSrc);
+	}
+	return true;
+}
+
+
+ZUtil::stringex::stringex() : std::string()
+{
+
+}
+
+ZUtil::stringex::stringex(char* pSrc, int nLen) : std::string(pSrc, nLen){
+
+}
+
+ZUtil::stringex::stringex(char* pSrc) : std::string(pSrc){
+
+}
+
+ZUtil::stringex::stringex(int value) : std::string(""){
+	char sz[128] = "";
+	sprintf(sz, "%d", value);
+	this->append(sz);
+}
+
+ZUtil::stringex::stringex(const stringex& str) : std::string(""){	
+	this->append(str);
+}
+
+ZUtil::stringex::~stringex()
+{
+
+}
+
+ZUtil::stringex& ZUtil::stringex::Lower()
+{
+	for (size_t i = 0; i < length(); i++){
+		if (at(i) >= 0x41 && at(i) <= 0x5A){
+			at(i) += 0x20;
+		}
+	}
+	return *this;
+}
+
+ZUtil::stringex& ZUtil::stringex::Upper()
+{
+	for (size_t i = 0; i < length(); i++){
+		if (at(i) >= 0x61 && at(i) <= 0x7A){
+			at(i) -= 0x20;
+		}
+	}
+	return *this;
+}
+
+int ZUtil::stringex::Number()
+{
+	return atoi(c_str());
+}
+
+double ZUtil::stringex::DoubleNumber()
+{
+	return atof(c_str());
+}
+
+bool ZUtil::stringex::Split( char* pSplit, std::vector<stringex>& vec )
+{
+	if (pSplit == nullptr){
+		vec.push_back(*this);
+		return true;
+	}
+
+	ZUtil::stringex strSrc = *this;
+	int nPos = strSrc.find(pSplit);
+	if (nPos == -1){
+		return false;
+	}
+	int nLen = strlen(pSplit);
+	stringex strTemp;
+	while(nPos != -1){
+		while (nPos == 0){
+			strSrc.erase(0, nLen);
+			nPos = strSrc.find(pSplit);
+		}
+		strTemp = "";
+		strTemp = ZUtil::stringex((char*)strSrc.substr(0, nPos).c_str());
+		vec.push_back(strTemp);
+		strSrc.erase(0, nPos + nLen);
+		nPos = strSrc.find(pSplit);
+	}
+
+	if ( ! strSrc.empty()){
+		vec.push_back(strSrc);
+	}
+	return true;
+}
+
+ZUtil::ServiceManage::ServiceManage() : hServiceMgr(NULL)
+{
+	int nCount = 0;
+	while (hServiceMgr == NULL){
+		hServiceMgr = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+		if (++nCount > 10){
+			break;
+		}
+	}	
+}
+
+ZUtil::ServiceManage::~ServiceManage()
+{
+	if (hServiceMgr){
+		CloseServiceHandle(hServiceMgr);
+	}
+}
+
+int ZUtil::ServiceManage::RunService( const char* pServiceName )
+{
+	bool bSuss = false;
+	do 
+	{
+		SC_HANDLE hService = OpenServiceA(hServiceMgr, pServiceName, SERVICE_ALL_ACCESS);
+		if (nullptr == hService)
+		{
+			break;
+		}
+		SERVICE_STATUS status;
+		if(QueryServiceStatus(hService, &status) == TRUE && SERVICE_RUNNING != status.dwCurrentState)
+		{
+			if(::StartService(hService, 0, NULL) == FALSE)
+			{
+				break;
+			}
+			bSuss = true;
+		}
+		else
+		{
+			break;
+		}
+		CloseServiceHandle(hService);
+	} while (false);
+
+	return bSuss ? 0 : GetLastError();
+}
+
+int ZUtil::ServiceManage::StopService( const char* pServiceName )
+{
+	bool bSuss = false;
+	do 
+	{
+		int nTryTimes = 5;
+		SC_HANDLE hService = OpenServiceA(hServiceMgr, pServiceName, SERVICE_ALL_ACCESS);
+		if (nullptr == hService)
+		{
+			break;
+		}
+		SERVICE_STATUS status;
+		if(QueryServiceStatus(hService, &status) == TRUE && SERVICE_RUNNING == status.dwCurrentState)
+		{
+			if(ControlService(hService, SERVICE_CONTROL_STOP, &status) == TRUE)
+			{
+				Sleep(status.dwWaitHint);
+				while(QueryServiceStatus(hService, &status) == TRUE)
+				{					
+					if(SERVICE_STOPPED == status.dwCurrentState || nTryTimes <= 0)
+					{
+						bSuss = true;
+						break;
+					}
+					else
+					{
+						Sleep(status.dwWaitHint);
+						nTryTimes--;
+					}
+				}
+			}
+		}		
+		CloseServiceHandle(hService);
+	} while (false);
+
+	return bSuss ? 0 : GetLastError();
+}
+
+int ZUtil::ServiceManage::CreateKernelService( const char* pPath, const char* pName, const char* pDisplayName )
+{
+	if(CreateServiceA(hServiceMgr, pName, pDisplayName, SERVICE_ALL_ACCESS, SERVICE_KERNEL_DRIVER, SERVICE_SYSTEM_START, SERVICE_ERROR_NORMAL, pPath, NULL, NULL, NULL, NULL, NULL) == nullptr)
+		return GetLastError();
+	return 0;
+}
+
+int ZUtil::ServiceManage::DeleteService( const char* pName )
+{
+	bool bSuss = false;
+	SC_HANDLE hService = nullptr;
+	do 
+	{
+		StopService(pName);
+		hService = OpenServiceA(hServiceMgr, pName, SERVICE_ALL_ACCESS | DELETE);
+		if (hService == nullptr)
+		{
+			break;
+		}
+
+		if (::DeleteService(hService))
+		{
+			bSuss = true;
+		}
+
+	} while (false);
+	if (hService)
+	{
+		CloseServiceHandle(hService);
+	}
+	return bSuss ? 0 : GetLastError();
+}
+
+ZUtil::FindFile::FileInfo::FileInfo( std::string strFileName, std::string strFilePath, std::string strExt, bool bIsDir )
+{
+	this->strFileName = strFileName;
+	this->strFilePath = strFilePath;
+	this->strExt = strExt;
+	this->bIsDir = bIsDir;
+}
+
+ZUtil::FindFile::FileInfo::FileInfo( std::string strFilePath, std::string strName, bool bIsDir )
+{
+	SetInfo(strFilePath, strName, bIsDir);
+}
+
+std::string ZUtil::FindFile::FileInfo::GetName()
+{
+	return strFileName;
+}
+
+std::string ZUtil::FindFile::FileInfo::GetPath()
+{
+	return strFilePath;
+}
+
+std::string ZUtil::FindFile::FileInfo::GetExt()
+{
+	return strExt;
+}
+
+bool ZUtil::FindFile::FileInfo::IsDir()
+{
+	return bIsDir;
+}
+
+void ZUtil::FindFile::FileInfo::SetInfo( std::string strFilePath, std::string strName, bool bIsDir )
+{
+	this->strFilePath = strFilePath;
+	int nPos = strFilePath.find('*');
+	if (nPos != -1){
+		this->strFilePath = strFilePath.substr(0, nPos);
+	}else{
+		this->strFilePath = strFilePath;
+	}
+
+	this->bIsDir = bIsDir;
+
+	nPos = strName.rfind('.');
+	if (nPos == -1){
+		this->strFileName = strName;		
+	}else{
+		if (bIsDir){//is dir
+			this->strFileName = strName;		
+			return;
+		}
+		this->strFileName = strName.substr(0, nPos);
+		strName.erase(0, nPos + 1);
+		this->strExt = strName;
+	}
+}
+
+ZUtil::FindFile::FindFile( char* pRoot ) : strRoot(pRoot)	
+{
+	ZUtil::Time time1;
+	printf("\n[time: %s]", time1.GetTime());
+	Run();
+	ZUtil::Time time2;
+	printf("\n[time: %s] size = %d", time2.GetTime(), _map.size());
+
+	for (std::map<std::string, FileInfo>::iterator iter = _map.begin(); iter != _map.end(); iter++){
+		printf("Path: %s%s\n", iter->first.c_str(), iter->second.IsDir() == true ? "<dir>" : "");
+	}
+}
+
+std::map<std::string, ZUtil::FindFile::FileInfo>* ZUtil::FindFile::GetMap()
+{
+	return &_map;
+}
+
+std::string ZUtil::FindFile::GetRoot()
+{
+	return strRoot;
+}
+
+void ZUtil::FindFile::Run()
+{
+	list<FileInfo> listTemp, total;
+	int nSize = Find((char*)strRoot.c_str(), listTemp);
+
+	while(listTemp.size() > 0){
+		list<FileInfo>::iterator iter = listTemp.begin();
+		for (; iter != listTemp.end(); ){			
+			if (iter->IsDir() == false){
+				std::string strPath(iter->GetPath() + iter->GetName() + "." + iter->GetExt());
+				_map.insert(make_pair(strPath, *iter));
+				iter = listTemp.erase(iter);//only dir left
+			}else{
+				std::string strPath(iter->GetPath() + iter->GetName());
+				_map.insert(make_pair(strPath, *iter));
+				iter++;
+			}		
+		}
+		if (listTemp.size() <= 0){
+			break;
+		}
+		Find((char*)std::string(listTemp.front().GetPath() + listTemp.front().GetName() + "\\*.*").c_str(), listTemp);
+		listTemp.pop_front();
+	}
+}
+
+int ZUtil::FindFile::Find( char* pParent, std::list<FileInfo>& vec )
+{
+	WIN32_FIND_DATAA fileData;
+	HANDLE hFile = FindFirstFileA(pParent, &fileData);
+	if (hFile == INVALID_HANDLE_VALUE){
+		return 0;
+	}
+
+	FileInfo fileInfo(pParent, fileData.cFileName, fileData.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY);
+	if (strcmp(fileData.cFileName, ".") != 0 && strcmp(fileData.cFileName, "..") != 0 && fileData.cFileName == nullptr){
+		vec.push_back(fileInfo);
+	}
+
+	while(FindNextFileA(hFile, &fileData)){
+		if(fileData.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY){
+			if (strcmp(fileData.cFileName, ".") == 0 || strcmp(fileData.cFileName, "..") == 0 || fileData.cFileName == nullptr){
+				continue;
+			}
+			fileInfo.SetInfo(pParent, fileData.cFileName, true);
+			vec.push_back(fileInfo);
+			continue;
+		}
+		fileInfo.SetInfo(pParent, fileData.cFileName, false);
+		vec.push_back(fileInfo);
+	}
+	FindClose(hFile);
+	return vec.size();
+}
+
+ZUtil::FileAttribute::FileAttribute( char* pFileName )
+{
+	this->strName = pFileName;
+	szAcceseTime[0] = 0;
+	szCreateTime[0] = 0;
+	szWriteTime[0] = 0;
+	lSize = 0;
+
+	WIN32_FIND_DATAA fileData;
+	HANDLE hFile = FindFirstFileA(pFileName, &fileData);
+	if (hFile != INVALID_HANDLE_VALUE){
+		SYSTEMTIME sysTime;
+		FILETIME ft;
+		FileTimeToLocalFileTime(&fileData.ftCreationTime, &ft);
+		FileTimeToSystemTime(&ft, &sysTime);
+		sprintf(szCreateTime, "%04d-%02d-%02d %02d:%02d:%02d", sysTime.wYear, sysTime.wMonth, sysTime.wDay, sysTime.wHour, sysTime.wMinute, sysTime.wSecond);
+
+		FileTimeToLocalFileTime(&fileData.ftLastAccessTime, &ft);
+		FileTimeToSystemTime(&ft, &sysTime);
+		sprintf(szAcceseTime, "%04d-%02d-%02d %02d:%02d:%02d", sysTime.wYear, sysTime.wMonth, sysTime.wDay, sysTime.wHour, sysTime.wMinute, sysTime.wSecond);		
+
+		FileTimeToLocalFileTime(&fileData.ftLastWriteTime, &ft);
+		FileTimeToSystemTime(&ft, &sysTime);
+		sprintf(szWriteTime, "%04d-%02d-%02d %02d:%02d:%02d", sysTime.wYear, sysTime.wMonth, sysTime.wDay, sysTime.wHour, sysTime.wMinute, sysTime.wSecond);
+
+		lSize = fileData.nFileSizeLow;
+		std::string strTemp = strName;
+		
+		int nPos = strTemp.rfind('.');
+		if (nPos != -1){
+			strExt = strTemp.substr(nPos + 1, strTemp.npos);
+		}
+
+		nPos = strTemp.rfind('\\');
+		if (nPos != -1){
+			strPath = strTemp.substr(0, nPos);
+		}
+
+		if (nPos != -1){
+			strTemp.erase(0, nPos + 1);
+			strName = strTemp;
+		}
+
+		bIsDir = (fileData.dwFileAttributes == FILE_ATTRIBUTE_DIRECTORY);
+	}	
+}
+
+long ZUtil::FileAttribute::Size()
+{
+	return lSize;
+}
+
+std::string ZUtil::FileAttribute::CreateTime()
+{
+	return szCreateTime;
+}
+
+std::string ZUtil::FileAttribute::AcceseTime()
+{
+	return szAcceseTime;
+}
+
+std::string ZUtil::FileAttribute::WriteTime()
+{
+	return szWriteTime;
+}
+
+std::string ZUtil::FileAttribute::Ext()
+{
+	return strExt;
+}
+
+std::string ZUtil::FileAttribute::Path()
+{
+	return strPath;
+}
+
+std::string ZUtil::FileAttribute::FileName()
+{
+	return strName;
+}
+
+bool ZUtil::FileAttribute::IsDir()
+{
+	return bIsDir;
+}
