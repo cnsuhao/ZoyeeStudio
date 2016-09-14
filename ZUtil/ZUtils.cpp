@@ -1,6 +1,8 @@
 #include "ZUtils.h"
 
 //#include <WinSock2.h>
+#include <fstream>
+#include <stdarg.h>
 #include <Windows.h>
 #include <ObjBase.h>
 #include <io.h>
@@ -1682,7 +1684,7 @@ void ZUtil::Thread::Pause()
 int ZUtil::Thread::DefaultCallback( char* pData, int nLen, int nEventType )
 {
 	printf("[%s][%d]\n", pData, nEventType);
-	return 0;		 
+	return 0;
 }
 
 void ZUtil::Thread::Resume()
@@ -1869,7 +1871,7 @@ std::string* ZUtil::string::GetStdString()
 
 ZUtil::string& ZUtil::string::Lower()
 {
-	for (int i = 0; i < strSrc.length(); i++){
+	for (size_t i = 0; i < strSrc.length(); i++){
 		if (strSrc.at(i) >= 0x41 && strSrc.at(i) <= 0x5A){
 			strSrc.at(i) += 0x20;
 		}
@@ -1879,7 +1881,7 @@ ZUtil::string& ZUtil::string::Lower()
 
 ZUtil::string& ZUtil::string::Upper()
 {
-	for (int i = 0; i < strSrc.length(); i++){
+	for (size_t i = 0; i < strSrc.length(); i++){
 		if (strSrc.at(i) >= 0x61 && strSrc.at(i) <= 0x7A){
 			strSrc.at(i) -= 0x20;
 		}
@@ -2377,3 +2379,84 @@ bool ZUtil::FileAttribute::IsDir()
 {
 	return bIsDir;
 }
+
+ZUtil::Log::Log( char* pLogPath, long lMaxLogFileSize /*= 10 * 1024*/ )
+{
+	this->fs = nullptr;
+	this->lMaxLogFileSize = lMaxLogFileSize;
+	char szPath[1024];
+	if (pLogPath == nullptr){
+		sprintf(szPath, "%s\\%s.log", GetApplicationPath(false), Time(Time::yyyymmddhhmissms, '_', '_').GetTime());
+	}else{
+		strcpy(szPath, pLogPath);
+	}
+	fs = new std::ofstream(szPath, ios::app);
+}
+
+ZUtil::Log* ZUtil::Log::Instance()
+{
+	if (pInstance == nullptr){
+		pInstance = new ZUtil::Log(nullptr);
+	}
+	return pInstance;
+}
+
+long ZUtil::Log::GetSize()
+{
+	fs->seekp(0, ios::end);
+	return fs->tellp();
+}
+
+ZUtil::Log::~Log()
+{
+	if (this->fs){
+		fs->close();
+		delete fs;
+		fs = nullptr;
+	}
+}
+
+void ZUtil::Log::Write( LogLevel level, char* pModule, const char* pFmt, ... )
+{
+	char sz[1024] = "";
+	char szTitle[128] = "";
+	va_list ap; 
+	va_start (ap, pFmt);
+	vsprintf(sz, pFmt, ap);
+	va_end(ap);
+	__LOCK__;
+	switch(level){
+	case Log_Info:
+		sprintf(szTitle, "\n[%s][ INFO][%s]", Time(Time::yyyymmddhhmissms).GetTime(), pModule);
+		break;
+	case Log_Debug:
+		sprintf(szTitle, "\n[%s][DEBUG][%s]", Time(Time::yyyymmddhhmissms).GetTime(), pModule);
+		break;
+	case Log_Error:
+		sprintf(szTitle, "\n[%s][ERROR][%s]", Time(Time::yyyymmddhhmissms).GetTime(), pModule);
+		break;
+	default:
+		break;
+	}
+
+	*fs << szTitle;
+	*fs << sz;
+	fs->flush();
+}
+
+void ZUtil::Log::Write( char* pModule, const char* pFmt, ... )
+{
+	char sz[1024] = "";
+	char szTitle[128] = "";
+	va_list ap; 
+	va_start (ap, pFmt);
+	vsprintf(sz, pFmt, ap);
+	va_end(ap);
+	__LOCK__;
+	sprintf(szTitle, "\n[%s][DEBUG][%s]", Time(Time::yyyymmddhhmissms).GetTime(), pModule);
+	*fs << szTitle;
+	*fs << sz;
+	fs->flush();
+}
+
+ZUtil::Log* ZUtil::Log::pInstance = nullptr;

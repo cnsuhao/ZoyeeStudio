@@ -3,14 +3,17 @@
 
 //  [8/12/2016 zoyee]
 /*/////////////////////////////////////////////////////////////////////////
-SystemInfo : [ 
-	CpuInfo, DiskInfo, MemoryInfo, OSVerInfo
-]
+SystemInfo
+	|__CpuInfo
+	|__DiskInfo
+	|__MemoryInfo
+	|__OSVerInfo
 
 GetApplicationPath, ToChar, ToWChar, NewGuid...
-Register : [
-	RegEnum, ValueType
-];
+
+Register
+	|__RegEnum
+	|__ValueType
 
 SocketConnect
 	|__SocketServer
@@ -29,7 +32,7 @@ Process
 
 Time(unfinish)
 
-Log(unfinish)
+Log
 
 FindFile
 	|__FileInfo
@@ -434,6 +437,7 @@ namespace ZUtil
 
 #define __KEY__ ZUtil::LockKey key;
 #define __LOCK__ ZUtil::Lock lock(&key);
+#define GETTIME() ZUtil::Time(ZUtil::Time::yyyymmddhhmissms).GetTime()
 
 	//class AnnulusStore{//环形存储区, 先放弃开发
 	//public:
@@ -450,9 +454,25 @@ namespace ZUtil
 	//};
 
 	class Log{
-		Log(char* pLogPath, int nMaxLogFileSize = 10 * 1024);
-		void WriteLog(int level, char* pModule, const char* pFmt, ...);		
+	public:
+		static Log* Instance();
+		Log(char* pLogPath, long lMaxLogFileSize = 10 * 1024);
+		~Log();
+
+		enum LogLevel{
+			Log_Info,
+			Log_Debug, 
+			Log_Error
+		};
+
+		void Write(LogLevel level, char* pModule, const char* pFmt, ...);
+		void Write(char* pModule, const char* pFmt, ...);
 	protected:
+		long GetSize();
+		Log();
+		static Log* pInstance;
+		std::ofstream* fs;
+		long lMaxLogFileSize;
 		__KEY__;
 	};
 
@@ -596,7 +616,6 @@ namespace ZUtil
 #define THREAD_STOP 3
 #define THREAD_FINISH 4
 #define THREAD_RUNNING 5
-
 
 #define SYSTEM_UNKNOWN              0        //未知版本
 #define SYSTEM_XP                   1        //xp系统
