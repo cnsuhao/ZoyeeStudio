@@ -1,10 +1,5 @@
 #include "ZUtils.h"
-#include "Sort.h"
 
-class A{
-public:
-	int a;
-};
 
 class MyThread : public ZUtil::Thread{
 public:
@@ -19,35 +14,51 @@ int MyThread::Run()
 	}
 	return 0;
 }
+//http://blog.csdn.net/dongyewolong/article/details/8182055
+//https://lug.ustc.edu.cn/sites/qtguide/
 
-void Load(){
-	//int x = GetPrivateProfileIntA("set", "x", -1, "d:\\x.ini");
-	//x++;
-	char sz[10];
-	GetPrivateProfileStringA("set", "x4", "0.0", sz, 10, "d:\\x.ini");
-	double d = atof(sz);
+ZUtil::WaitModel wm(3);
+
+int ThreadFunc(){
+	printf("[%d]", wm.MulWait(3000));
+	return 0;
 }
-
-class 学生
-{
-public:
-	int 获取年纪();
-	int 年纪;
-};
-
-int 学生::获取年纪(){
-	return 年纪;
-}
-
-
 
 int main(){	
-	char* ptr = GETTIME();
-	ZUtil::Log::Instance()->Write(ZUtil::Log::Log_Debug, __FUNCTION__, "HELLO:%s", "Jack");
-	ZUtil::Log::Instance()->Write(ZUtil::Log::Log_Info, __FUNCTION__, "HELLO:%s", "Lucy");
-	ZUtil::Log::Instance()->Write(ZUtil::Log::Log_Error, __FUNCTION__, "HELLO:%s", "FFF");
-	printf("");
+	ZUtil::ZipModule zip;
+	zip.OpenZip("x:\\1.zip", "x:\\222");
+	int n = zip.UnZip();
 
+	std::vector<std::string> vec;
+	vec.push_back("YZ-xiaopiplayer.exe");
+	ZUtil::DebugView dv(vec);
+	dv.Start(false);
+	std::string strProcessName;
+	while(1){
+		std::cin >> strProcessName;
+		dv.AddProcessName((char*)strProcessName.c_str());
+	}
+
+
+	//ZUtil::stringex str("AABBCCAABBDD");
+	//str.Replace("AA", "X");
+
+	//ZUtil::stringex str2("33333");
+	//str2+=str;
+	//ZUtil::DebugView debugView;
+	//debugView.AddPid(4768);
+	//debugView.ListenDebugView();
+	//ZUtil::ServiceManage service;
+	//printf("[%d]", service.CreateKernelService("d:\\xpzsData\\ZQ\\xpstacks\\1\\ZQ-Hypervisor-x86-01.sys", "zqstHdDrv01", "zqplatform Hypervisor 01"));
+	//int nPid = ZUtil::Process::GetPid("Code.exe");
+	//ZUtil::Log::Instance()->Write(ZUtil::Log::Log_Debug, __FUNCTION__, "HELLO:%s", "Jack");
+	//ZUtil::Log::Instance()->Write(ZUtil::Log::Log_Info, __FUNCTION__, "HELLO:%s", "Lucy");
+	//ZUtil::Log::Instance()->Write(ZUtil::Log::Log_Error, __FUNCTION__, "HELLO:%s", "FFF");
+
+	//ZUtil::stringex str;
+	//ZUtil::stringex va = str.Format(1024, "%s", "Jack");
+
+	//printf("");
 	//ZUtil::string strSrc(std::string("00012304560789"));
 	//std::vector<std::string> vec;
 	//strSrc.Split("0", vec);
