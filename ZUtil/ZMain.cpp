@@ -25,12 +25,20 @@ int ThreadFunc(){
 }
 
 int main(){	
+	ZUtil::Md5 md5;
+	char sz[33];
+	md5.Code("hello", 5, sz);
+
 	ZUtil::ZipModule zip;
 	zip.OpenZip("x:\\1.zip", "x:\\222");
 	int n = zip.UnZip();
 
 	std::vector<std::string> vec;
 	vec.push_back("YZ-xiaopiplayer.exe");
+
+
+
+
 	ZUtil::DebugView dv(vec);
 	dv.Start(false);
 	std::string strProcessName;

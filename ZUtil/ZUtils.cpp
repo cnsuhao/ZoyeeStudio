@@ -27,6 +27,8 @@
 #define ClientError "client is error!"
 #define ClientErrorLen strlen(ClientError)
 
+#define FreeDll(hDll) if (hDll != nullptr){ FreeLibrary(hDll); hDll = nullptr;}
+
 //-------cpu.begin--------
 
 ZUtil::SystemInfo::CpuInfo::CpuInfo(bool bGetRightNow) : bGot(false)
@@ -2873,4 +2875,36 @@ int ZUtil::ZipModule::UnZip()
 		}
 	}
 	return nUnzipCount;
+}
+
+ZUtil::Md5::Md5() : hDll(nullptr), pFuncMd5(nullptr), bInitOk(false)
+{
+	char szPath[1024];
+	sprintf(szPath, "%s\\md5.dll", ZUtil::GetApplicationPath(false));
+	try{
+		hDll = ::LoadLibraryA(szPath);
+		if (hDll == nullptr){
+			throw "LoadLibrary fail!";
+		}
+		
+		pFuncMd5 = (pMd5)GetProcAddress(hDll, "md5");
+		if (pFuncMd5 == nullptr){
+			throw "GetProcAddress md5 fail!";
+		}
+		bInitOk = true;
+	}catch(char* pError){
+		printf("[catch exception]:%s", pError);
+	}
+}
+
+ZUtil::Md5::~Md5()
+{
+	FreeDll(hDll);
+}
+
+void ZUtil::Md5::Code( char* pInput, int nLen, __out char* pOutput )
+{
+	if (bInitOk){
+		pFuncMd5(pInput, nLen, pOutput);
+	}
 }
