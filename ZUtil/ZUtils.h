@@ -8,8 +8,7 @@ SystemInfo
 	|__DiskInfo
 	|__MemoryInfo
 	|__OSVerInfo
-
-GetApplicationPath, ToChar, ToWChar, NewGuid...
+	|__Visual(todo)
 
 Register
 	|__RegEnum
@@ -43,18 +42,27 @@ Thread
 
 ThreadPool(coding)
 
+DebugView
+
+WaitModel
+
+Base64
+
+ZipModule(coding)
+
+Pipe(todo)
+
+SQL(todo)
+
 /////////////////////////////////////////////////////////////////////////*/
 #include <windows.h>
 #include <iostream>
-//#define NO_USE_STL
-
-#ifndef NO_USE_STL
 #include <vector>
 #include <map>
 #include <string>
 #include <list>
+#include <set>
 using namespace std;
-#endif
 
 namespace ZUtil{
 	class SocketConnect;
@@ -66,6 +74,16 @@ typedef void(*pNotify)(char* pData, int nLen, int nType, ZUtil::SocketConnect* p
 typedef void(*pProtocol)(char* pData, int nLen, __out char* pOut, __out int& nOut);
 typedef int(*pSend)(char* pData, int nLen, ZUtil::SocketConnect* pThis);
 typedef int (*pThreadEvent)(char* pData, int nLen, int nEventType);
+typedef int (*pDebugViewPrint)(char* pProcessName, int nPid, char* pMsg);
+
+typedef void (*pCallbackFunc)(char* pFile, bool bIsDir, int nType);
+typedef void* (*pOpenZipFile)(char* pZipFile, char* pPassword);
+typedef void (*pCloseZipFile)(void* hZip);
+typedef int (*pZip)(void* hZip, char* pFromZipFilePath, char* pInZipFilePath, bool bIsDir);
+typedef int (*pGetUnZipFileCount)(void* hZip);
+typedef int (*pGetUnZipFile)(void* pZip, int nIndex, char* pFileName);
+typedef int (*pUnZip)(void* hZip, int nIndex);
+typedef int (*pSetUnZipDir)(void* pZip, char* pDir);
 
 namespace ZUtil
 {
@@ -149,28 +167,6 @@ namespace ZUtil
 		};
 	};
 
-	class string{
-	public:
-		string(std::string& strSrc);
-		string(char* pSrc, int nLen);
-		string(char* pSrc);
-		~string();
-
-		void Reset();
-		std::string CopyStdString();
-		std::string* GetStdString();
-		ZUtil::string& Lower();
-		ZUtil::string& Upper();
-		int Number();
-		int Length();
-		int Size();
-		
-		bool Split(char* pSplit, std::vector<std::string>& vec);
-
-	private:
-		std::string strSrc;
-	};
-
 	class stringex : public std::string{
 	public:
 		stringex();
@@ -187,6 +183,10 @@ namespace ZUtil
 		double DoubleNumber();
 
 		bool Split(char* pSplit, std::vector<stringex>& vec);
+		stringex Format(size_t nSize, const char* pFmt, ...);
+		stringex Replace(char* pSrc, char* pToReplace);
+		stringex& operator+ (stringex& str);
+		stringex& operator+= (stringex& str);
 	};
 
 	class Time{
@@ -298,6 +298,8 @@ namespace ZUtil
 		static int CloseByWindowName(char* pszWindowsTitle, bool bWaitForClose = true);
 		static int CloseByProcessName(char* pszProcessName, bool bWaitForClose = true);
 		static int CloseByHwnd(HWND hWnd, bool bWaitForClose = true);	
+		static int GetPid(char* pszProcessName);
+		static std::string GetProcessName(int nPid);
 #ifndef NO_USE_STL
 		static int GetProcessList(vector<string>& vecProcessName);
 #endif
@@ -439,20 +441,6 @@ namespace ZUtil
 #define __LOCK__ ZUtil::Lock lock(&key);
 #define GETTIME() ZUtil::Time(ZUtil::Time::yyyymmddhhmissms).GetTime()
 
-	//class AnnulusStore{//环形存储区, 先放弃开发
-	//public:
-	//	AnnulusStore(unsigned int nSize);
-	//	~AnnulusStore();
-	//	int GetData(char* pRes, int nLen);//足够返回0, 不够其他
-	//	int WriteData(char* pData, int nLen);
-
-	//protected:
-	//	char* pData;
-	//	unsigned int nBPos;
-	//	unsigned int nEPos;
-	//	unsigned int nMaxSize;
-	//};
-
 	class Log{
 	public:
 		static Log* Instance();
@@ -469,6 +457,7 @@ namespace ZUtil
 		void Write(char* pModule, const char* pFmt, ...);
 	protected:
 		long GetSize();
+		void Reopen();
 		Log();
 		static Log* pInstance;
 		std::ofstream* fs;
@@ -579,6 +568,103 @@ namespace ZUtil
 		SocketConnect* pServer;
 	};
 
+	class DebugView{
+	public:
+		DebugView();
+		DebugView(std::vector<std::string>& vecProcessNames);
+		DebugView(std::vector<int>& vecPids);
+		~DebugView();
+
+#pragma pack(push)
+#pragma pack(1)
+		class DebugViewInfo{
+		public:
+			int nPid;
+			char szBuff[4096 - sizeof(int)];
+		};		
+#pragma pack(pop)
+
+		void AddProcessName(char* pszProcessName);
+		void AddPid(int nPid);
+		void RemoveProcessName(char* pszProcessName);
+		void RemovePid(int nPid);
+
+		char* GetProcessName(int nPid);				
+		void Start(bool bAsyn = true);
+
+		int ListenDebugView();//listen the debug view pipe				
+		void SetDebugViewPrint(pDebugViewPrint pDebug = nullptr);
+
+	private:	
+		__KEY__;
+		static int DefaultDebugView(char* pProcessName, int nPid, char* pMsg);
+		pDebugViewPrint pDebug;
+		std::map<int, std::string> mapProcessPid;
+	};
+
+	class WaitModel{
+	public:
+		WaitModel(int nEventCount = 1);//throw when nEventCount <= 0
+		~WaitModel();
+
+		int Wait(int nMs, int nEventId = 0);
+		int MulWait(int nMs, bool waitAll = false);
+		int FreeWait(int nEventId = 0);
+	protected:
+		vector<HANDLE> vecEvent;
+	};
+
+	class Base64{
+	public:
+		static std::string Encode(char* pSrc, int nLen);
+		static std::string Decode(char* pSrc, int nLen);
+	};
+
+	class ZipModule{
+	public:
+		ZipModule();
+		~ZipModule();
+		//unZip
+		int OpenZip(char* pZipFile, char* pUnZipDir, char* pPassword = nullptr);
+		int UnZip();
+
+		//unZip Helper
+		int GetFileCountsInZipFile();
+		int GetItemFileName(int nIndex, __out char* pFileName);
+		int UnzipItem(int nIndex);
+
+		//Zip
+		int CreateZip(char* pZipFile, char* pPassword = nullptr);
+		int Zip(char* pDir);
+		int Zip(std::vector<std::string>& vecFiles);
+
+		//ZipHelper
+
+		/*
+		typedef void (*pCallbackFunc)(char* pFile, bool bIsDir, int nType);
+		typedef void* (*pOpenZipFile)(char* pZipFile, char* pPassword);
+		typedef void (*pCloseZipFile)(void* hZip);
+		typedef int (*pZip)(void* hZip, char* pFromZipFilePath, char* pInZipFilePath, bool bIsDir);
+		typedef int (*pGetUnZipFileCount)(void* hZip);
+		typedef int (*pGetUnZipFile)(void* pZip, int nIndex, char* pFileName);
+		typedef int (*pUnZip)(void* hZip, int nIndex);
+		typedef void (*pSetUnZipDir)(void* pZip, char* pDir);
+		*/
+	private:
+		HMODULE hDll;
+		pOpenZipFile pFuncOpenZipFile;
+		pOpenZipFile pFuncCreateZipFile;
+		pCloseZipFile pFuncCloseZipFile;
+		pZip pFuncZip;
+		pGetUnZipFileCount pFuncUnZipFileCount;
+		pGetUnZipFile pFuncGetUnZipFile;
+		pUnZip pFuncUnZip;
+		pSetUnZipDir pFuncSetUnZipDir;
+		void* hZip;
+		bool bInitOk;
+	};
+	
+	bool CloseProcessDEP();
 	char* GetApplicationPath(bool bWithFileName);
 	void ToChar(wchar_t* pwData, int nwLen, __out char* pData);
 	void ToWchar(char* pData, int nLen, __out wchar_t* pwData);
@@ -586,9 +672,6 @@ namespace ZUtil
 	char* NewGuid();
 	const char* GetBuildDateTime();
 	void SetPrivilegeDebug();
-//#ifndef NO_USE_STL
-//	std::string NewGuid();
-//#endif
 }
 
 #define ZSOCKET_ERROR -1
@@ -631,6 +714,7 @@ namespace ZUtil
 #define SYSTEM_WIN8_1_64            11       //win8.1 64位系统
 #define SYSTEM_WIN10_32             12       //win10 32位系统
 #define SYSTEM_WIN10_64             13       //win10 64位系统
+#define SYSTEM_WINSRV_2003     14
 
 
 #endif

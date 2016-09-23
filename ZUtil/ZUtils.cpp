@@ -10,6 +10,7 @@
 #include <string>
 #include <psapi.h>    
 #include <direct.h>
+#include <assert.h>
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "Ole32.lib")//com
 #pragma comment(lib, "Advapi32.lib")//reg
@@ -273,6 +274,10 @@ void ZUtil::SystemInfo::OSVer::Get()
 				verInfo.nWindowsDefineCode = SYSTEM_XP_64;
 				strcpy(verInfo.szDiscripe, "XP-x64");
 			}
+			if (GetSystemMetrics(SM_SERVERR2) == 0){
+				verInfo.nWindowsDefineCode = SYSTEM_WINSRV_2003;
+				strcpy(verInfo.szDiscripe, "Server-2003");
+			}
 		}
 		else if(6 == osvi.dwMajorVersion && 1 == osvi.dwMinorVersion)
 		{
@@ -330,21 +335,6 @@ void ZUtil::ToWchar( char* pData, int nLen, __out wchar_t* pwData )
 {
 	MultiByteToWideChar(CP_ACP, 0, pData, -1, pwData, (nLen * 2));
 }
-//#ifndef NO_USE_STL
-//std::string ZUtil::NewGuid()
-//{
-//	char szGuid[64] = {0};
-//	GUID guid;
-//	if (S_OK == ::CoCreateGuid(&guid))
-//	{
-//		sprintf(szGuid, "%08X-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X", 
-//			guid.Data1, guid.Data2, guid.Data3, guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3], guid.Data4[4], 
-//			guid.Data4[5], guid.Data4[6], guid.Data4[7]);
-//		return (szGuid);
-//	}
-//	return "";
-//}
-//#endif
 
 void ZUtil::NewGuid( __out char* pRes )
 {
@@ -397,6 +387,54 @@ void ZUtil::SetPrivilegeDebug()
 const char* ZUtil::GetBuildDateTime()
 {
 	return __DATE__" "__TIME__;
+}
+
+typedef enum _PROCESSINFOCLASS 
+{
+	ProcessDebugPort=0x22
+} PROCESSINFOCLASS;
+
+#define  MEM_EXECUTE_OPTION_ENABLE 0x2
+typedef DWORD(CALLBACK * NTSETINFORMATIONPROCESS)(
+	IN HANDLE ProcessHandle,
+	IN PROCESSINFOCLASS ProcessInformationClass,
+	IN PVOID ProcessInformation,
+	IN ULONG ProcessInformationLength);
+
+bool ZUtil::CloseProcessDEP()
+{
+	NTSETINFORMATIONPROCESS NtSetInformationProcess;
+	HMODULE hNtdll;
+	hNtdll = LoadLibraryA("ntdll.dll");
+	if(hNtdll == NULL) 
+	{
+		OutputDebugStringA("LoadLibraryA ntdll.dll Error\n");
+		return 0;
+	}
+
+	NtSetInformationProcess = (NTSETINFORMATIONPROCESS)GetProcAddress(hNtdll, "NtSetInformationProcess");
+	if(NtSetInformationProcess == NULL)
+	{
+		char szError[128] = "";
+		sprintf(szError, "GetProcAddress NtSetInformationProcess Error[%d]\n", GetLastError());
+		OutputDebugStringA(szError);
+		printf(szError);
+		return 0;
+	}
+
+	ULONG ExecuteFlags = MEM_EXECUTE_OPTION_ENABLE;
+	DWORD dwRet = NtSetInformationProcess(GetCurrentProcess(), ProcessDebugPort, &ExecuteFlags, sizeof(ExecuteFlags));
+
+	if(dwRet != 0)
+	{
+		char szError[128] = "";
+		sprintf(szError, "NtSetInformationProcess Error[%d]\n", GetLastError());
+		OutputDebugStringA(szError);
+		printf(szError);
+		return 0;
+	}
+	FreeLibrary(hNtdll);
+	return 1;
 }
 
 ZUtil::Register::Register( char* path, bool bIsx64, RegRootType regRootType )
@@ -927,7 +965,7 @@ int ZUtil::Process::GetProcessList( vector<string>& vecProcessName )
 #endif
 ZUtil::Process::ProcessInfo* ZUtil::Process::GetProcessList()
 {
-	LoadProcessInfo();	
+	LoadProcessInfo();
 	return pInfo;
 }
 
@@ -1081,6 +1119,53 @@ int ZUtil::Process::CloseByHwnd( HWND hWnd, bool bWaitForClose /*= true*/ )
 		WaitForSingleObject(hProcess, INFINITE);
 	}		
 	return 0;
+}
+
+int ZUtil::Process::GetPid( char* pszProcessName )
+{
+	PROCESSENTRY32 pe32;
+	pe32.dwSize = sizeof(pe32);
+
+	HANDLE hProcessSnap = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (hProcessSnap == INVALID_HANDLE_VALUE)
+	{
+		return -1;
+	}
+	int nCount = 0;
+	BOOL bMore = ::Process32First(hProcessSnap, &pe32);  
+	char szProcessName[128];
+	while(bMore){
+		ToChar(pe32.szExeFile, wcslen(pe32.szExeFile), szProcessName);
+		if (stricmp(szProcessName, pszProcessName) == 0)
+		{
+			return pe32.th32ProcessID;
+		}
+		bMore = ::Process32Next(hProcessSnap, &pe32);
+	}
+	return -1;
+}
+
+std::string ZUtil::Process::GetProcessName( int nPid )
+{
+	PROCESSENTRY32 pe32;
+	pe32.dwSize = sizeof(pe32);
+
+	HANDLE hProcessSnap = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (hProcessSnap == INVALID_HANDLE_VALUE)
+	{
+		return "";
+	}
+	int nCount = 0;
+	BOOL bMore = ::Process32First(hProcessSnap, &pe32);  
+	char szProcessName[128];
+	while(bMore){
+		if (pe32.th32ProcessID == nPid){
+			ToChar(pe32.szExeFile, wcslen(pe32.szExeFile), szProcessName);
+			return szProcessName;
+		}
+		bMore = ::Process32Next(hProcessSnap, &pe32);
+	}
+	return "";
 }
 
 ZUtil::Process::ProcessInfo::ProcessInfo()
@@ -1773,181 +1858,6 @@ ZUtil::Time::TimeFmt ZUtil::Time::GetFmt()
 	return fmt;
 }
 
-//
-//ZUtil::AnnulusStore::AnnulusStore( unsigned int nSize )
-//{
-//	this->nBPos = this->nEPos = 0;
-//	this->nMaxSize = nSize;
-//	this->pData = new char[nSize];
-//	memset(pData, 0, nSize);
-//}
-//
-//ZUtil::AnnulusStore::~AnnulusStore()
-//{
-//	if (pData){
-//		delete[] pData;
-//	}
-//}
-//
-//int ZUtil::AnnulusStore::GetData( char* pRes, int nLen )
-//{
-//	int nHead = 0;
-//	int nTail = 0;
-//	int nCopy = nLen > nMaxSize ? nMaxSize : nLen;//可接收部分
-//	if (nBPos <= nEPos){//顺序
-//		nCopy = (nEPos - nHead) > nCopy ? nCopy : (nEPos - nHead);
-//		memcpy(pRes, &pData[nBPos], nCopy);
-//		return (nCopy - nLen);
-//	}else{//翻过尾拼头
-//		int nPos = nMaxSize - nBPos;//尾部
-//		if (nPos > nCopy){//接收区不够长
-//			memcpy(pRes, &pData[nBPos], nCopy);
-//			return (nPos - nCopy);
-//		}else{//够长
-//			memcpy(pRes, &pData[nBPos], nPos);
-//			if (nLen - nPos < nBPos){//剩下的不够放
-//				memcpy(&pRes[nPos], &pData[0], (nLen - nPos));
-//				return (nBPos - (nLen - nPos));
-//			}
-//			memcpy(&pRes[nPos], &pData[0], nEPos);
-//			return 0;
-//		}
-//	}		
-//}
-//
-//int ZUtil::AnnulusStore::WriteData( char* pData, int nLen )
-//{
-//	int nCopyLen = 0;
-//	int nCopyTotal = 0;
-//	while(nLen > 0){
-//		nCopyLen = nMaxSize - nEPos;
-//		memcpy(&pData[nCopyTotal], &this->pData[nBPos], nCopyLen);
-//		nCopyTotal += nCopyLen;
-//		nEPos+= nCopyLen;
-//	}
-//	return 0;
-//}
-
-ZUtil::string::string( std::string& strSrc )
-{
-	this->strSrc = strSrc;
-}
-
-ZUtil::string::string(char* pSrc, int nLen)
-{
-	this->strSrc = std::string(pSrc, nLen);
-}
-
-ZUtil::string::string(char* pSrc)
-{
-	this->strSrc = std::string(pSrc);
-}
-
-ZUtil::string::~string()
-{
-	printf("%s, %p\n", __FUNCTION__, this);
-}
-
-void ZUtil::string::Reset()
-{
-	this->strSrc = "";
-	this->strSrc.resize(0);
-}
-
-std::string ZUtil::string::CopyStdString()
-{
-	return strSrc;
-}
-
-int ZUtil::string::Number()
-{
-	return atoi(strSrc.c_str());
-}
-
-std::string* ZUtil::string::GetStdString()
-{
-	return &strSrc;
-}
-
-ZUtil::string& ZUtil::string::Lower()
-{
-	for (size_t i = 0; i < strSrc.length(); i++){
-		if (strSrc.at(i) >= 0x41 && strSrc.at(i) <= 0x5A){
-			strSrc.at(i) += 0x20;
-		}
-	}
-	return *this;
-}
-
-ZUtil::string& ZUtil::string::Upper()
-{
-	for (size_t i = 0; i < strSrc.length(); i++){
-		if (strSrc.at(i) >= 0x61 && strSrc.at(i) <= 0x7A){
-			strSrc.at(i) -= 0x20;
-		}
-	}
-	return *this;
-}
-
-int ZUtil::string::Length()
-{
-	return strSrc.length();
-}
-
-int ZUtil::string::Size()
-{
-	return strSrc.size();
-}
-
-
-
-bool ZUtil::string::Split( char* pSplit, std::vector<std::string>& vec )
-{
-	//int nSplitLen = strlen(pSplit);
-	//char* pSrc = new char[strSrc.length()];
-	//strcpy(&pSrc[0], strSrc.c_str());
-	//char* pText = strtok(pSrc, pSplit);
-	//bool bRes = false;
-
-	//while(pText != nullptr){
-	//	bRes = true;
-	//	vec.push_back(pText);
-	//	pText = strtok(nullptr, pSplit);
-	//}
-	//if (pText){
-	//	vec.push_back(pText);
-	//}
-	//return bRes;
-	if (pSplit == nullptr){
-		vec.push_back(strSrc);
-		return true;
-	}
-	std::string strSrc = this->strSrc;
-	int nPos = strSrc.find(pSplit);
-	if (nPos == -1){
-		return false;
-	}
-	int nLen = strlen(pSplit);
-	std::string strTemp;
-	while(nPos != -1){
-		while (nPos == 0){
-			strSrc.erase(0, nLen);
-			nPos = strSrc.find(pSplit);
-		}
-		strTemp = "";
-		strTemp = strSrc.substr(0, nPos);
-		vec.push_back(strTemp);
-		strSrc.erase(0, nPos + nLen);
-		nPos = strSrc.find(pSplit);
-	}
-
-	if ( ! strSrc.empty()){
-		vec.push_back(strSrc);
-	}
-	return true;
-}
-
-
 ZUtil::stringex::stringex() : std::string()
 {
 
@@ -2036,6 +1946,49 @@ bool ZUtil::stringex::Split( char* pSplit, std::vector<stringex>& vec )
 		vec.push_back(strSrc);
 	}
 	return true;
+}
+
+ZUtil::stringex ZUtil::stringex::Format( size_t nSize, const char* pFmt, ... )
+{
+	char* pBuff = new char[nSize + 1];
+	memset(pBuff, 0, nSize);
+
+	va_list ap;
+	va_start(ap, pFmt);
+	vsprintf(pBuff, pFmt, ap);
+	va_end(ap);
+	this->clear();
+	this->append(pBuff);
+	delete pBuff;
+	return *this;
+}
+
+ZUtil::stringex ZUtil::stringex::Replace( char* pSrc, char* pToReplace )
+{
+	if (pToReplace == nullptr || pSrc == nullptr){
+		return *this;
+	}
+
+	int nSrcLen = strlen(pSrc);
+	int nPos = find(pSrc);
+	while(nPos != -1){
+		erase(nPos, nSrcLen);
+		insert(nPos, pToReplace);
+		nPos = find(pSrc);
+	}
+	return *this;
+}
+
+ZUtil::stringex& ZUtil::stringex::operator+( stringex& str )
+{
+	append(str.begin(), str.end());
+	return *this;
+}
+
+ZUtil::stringex& ZUtil::stringex::operator+=( stringex& str )
+{
+	append(str.begin(), str.end());
+	return *this;
 }
 
 ZUtil::ServiceManage::ServiceManage() : hServiceMgr(NULL)
@@ -2425,6 +2378,9 @@ void ZUtil::Log::Write( LogLevel level, char* pModule, const char* pFmt, ... )
 	vsprintf(sz, pFmt, ap);
 	va_end(ap);
 	__LOCK__;
+	if (GetSize() >= lMaxLogFileSize){
+		Reopen();//log file is too big, recreate a new file to log
+	}
 	switch(level){
 	case Log_Info:
 		sprintf(szTitle, "\n[%s][ INFO][%s]", Time(Time::yyyymmddhhmissms).GetTime(), pModule);
@@ -2459,4 +2415,462 @@ void ZUtil::Log::Write( char* pModule, const char* pFmt, ... )
 	fs->flush();
 }
 
+void ZUtil::Log::Reopen()
+{
+	fs->close();
+	delete fs;
+	char szPath[1024] = "";
+	sprintf(szPath, "%s\\%s.log", GetApplicationPath(false), Time(Time::yyyymmddhhmissms, '_', '_').GetTime());
+	fs = new std::ofstream(szPath, ios::app);
+}
+
 ZUtil::Log* ZUtil::Log::pInstance = nullptr;
+
+#define _LeaveIfTrue(o) if( o == true) return -1;
+#define MAX_DEBUG_BUF_LEN (4096)
+
+int DebugViewThread(void* ptr){
+	ZUtil::DebugView* pDv = (ZUtil::DebugView*)ptr;
+	pDv->ListenDebugView();
+	return 0;
+}
+
+int UpdateProInfoThread(void* ptr){
+	return 0;
+}
+
+ZUtil::stringex operator+( ZUtil::stringex str1, ZUtil::stringex str2 )
+{
+	return str1;
+}
+
+ZUtil::DebugView::DebugView()
+{
+	SetDebugViewPrint(nullptr);
+}
+
+ZUtil::DebugView::DebugView( std::vector<std::string>& vecProcessNames )
+{
+	__LOCK__;
+	SetDebugViewPrint(nullptr);
+	size_t size = vecProcessNames.size();
+	for (size_t t = 0; t < size; t++){
+		AddProcessName((char*)vecProcessNames[t].c_str());
+	}
+}
+
+ZUtil::DebugView::DebugView( std::vector<int>& vecPids )
+{
+	__LOCK__;
+	SetDebugViewPrint(nullptr);
+	size_t size = vecPids.size();
+	for (size_t t = 0; t < size; t++){
+		AddPid(vecPids[t]);
+	}
+}
+
+ZUtil::DebugView::~DebugView()
+{
+
+}
+
+void ZUtil::DebugView::AddProcessName( char* pszProcessName )
+{
+	__LOCK__;
+	int nPid = Process::GetPid(pszProcessName);
+	if (nPid > 0){
+		this->mapProcessPid[nPid] = pszProcessName;
+	}
+}
+
+void ZUtil::DebugView::AddPid( int nPid )
+{
+	__LOCK__;
+	std::string strProcessName = Process::GetProcessName(nPid);
+	if (strProcessName != ""){
+		this->mapProcessPid[nPid] = strProcessName;
+	}
+}
+
+void ZUtil::DebugView::RemoveProcessName( char* pszProcessName )
+{
+	__LOCK__;
+	std::map<int, std::string>::iterator iter = mapProcessPid.begin();
+	for (; iter != mapProcessPid.end(); iter++){
+		if(iter->second == pszProcessName){
+			mapProcessPid.erase(iter);
+			break;
+		}
+	}
+}
+
+void ZUtil::DebugView::RemovePid( int nPid )
+{
+	__LOCK__;
+	std::map<int, std::string>::iterator iter = mapProcessPid.find(nPid);
+	if (iter != mapProcessPid.end()){
+		mapProcessPid.erase(iter);
+	}
+}
+
+
+
+void ZUtil::DebugView::SetDebugViewPrint( pDebugViewPrint pDebug )
+{
+	if (pDebug == nullptr){
+		this->pDebug = DefaultDebugView;
+		return;
+	}
+	this->pDebug = pDebug;
+}
+
+int ZUtil::DebugView::DefaultDebugView( char* pProcessName, int nPid, char* pMsg )
+{
+	/*printf("[%s][%d]\n    |___", pProcessName, nPid);
+	printf("[msg]: %s\n", pMsg);*/
+	printf("\n[%s][%d]:%s", pProcessName, nPid, pMsg);
+	return 0;
+}
+
+int ZUtil::DebugView::ListenDebugView()
+{
+	DWORD dwResults = ERROR_INVALID_HANDLE;
+	HANDLE hAckEvent = CreateEvent(NULL, FALSE, FALSE, TEXT("DBWIN_BUFFER_READY"));
+	_LeaveIfTrue(hAckEvent == nullptr);
+	HANDLE hReadyEvent = CreateEvent(NULL, FALSE, FALSE, TEXT("DBWIN_DATA_READY"));
+	_LeaveIfTrue(hReadyEvent == nullptr);
+	HANDLE hMappingFile = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, MAX_DEBUG_BUF_LEN, TEXT("DBWIN_BUFFER"));
+	_LeaveIfTrue(hMappingFile == nullptr);
+	DebugViewInfo* pdbBuffer = (DebugViewInfo*) MapViewOfFile(hMappingFile, FILE_MAP_READ, 0, 0, 0);
+	_LeaveIfTrue(pdbBuffer == nullptr);
+
+	char* pProcess = nullptr;
+
+	for (dwResults = ERROR_SIGNAL_PENDING; (dwResults == ERROR_SIGNAL_PENDING); ){
+		SetEvent(hAckEvent);
+		if (WaitForSingleObject(hReadyEvent, INFINITE) == WAIT_OBJECT_0){
+			if (dwResults == ERROR_SIGNAL_PENDING){
+				pProcess = GetProcessName(pdbBuffer->nPid);
+				if(pProcess){
+					pDebug(pProcess, pdbBuffer->nPid, pdbBuffer->szBuff);
+				}
+			}
+			else{
+				dwResults = WAIT_ABANDONED;
+			}
+		}
+	}
+
+	return 0;
+}
+
+char* ZUtil::DebugView::GetProcessName( int nPid )
+{
+	__LOCK__;
+	std::map<int, std::string>::iterator iter = mapProcessPid.find(nPid);
+	if (iter != mapProcessPid.end()){
+		return (char*)iter->second.c_str();
+	}
+	return nullptr;
+}
+
+void ZUtil::DebugView::Start( bool bAsyn /*= true*/ )
+{
+	if (bAsyn){
+		ListenDebugView();
+	}
+	else{
+		CreateThread(0, 0, (LPTHREAD_START_ROUTINE)DebugViewThread, this, 0, 0);
+	}
+}
+
+ZUtil::WaitModel::WaitModel( int nEventCount /*= 1*/ )
+{
+	if (nEventCount <= 0){
+		throw "EventCount <= 0";
+		assert(false);
+	}
+
+	char szEvent[32];
+	for (int i = 0; i < nEventCount; i++){
+		sprintf(szEvent, "WaitEvent_%02d", i);
+		vecEvent.push_back(CreateEventA(NULL, TRUE, FALSE, szEvent));
+	}
+}
+
+ZUtil::WaitModel::~WaitModel()
+{
+	size_t tSize = vecEvent.size();
+	for (size_t t = 0; t < tSize; t++){
+		CloseHandle(vecEvent[t]);
+	}
+	vecEvent.clear();
+}
+
+int ZUtil::WaitModel::Wait( int nMs, int nEventId /*= 0*/ )
+{
+	if (nEventId < 0){
+		return -1;
+	};
+
+	size_t t = vecEvent.size();
+	if (nEventId >= t || t <= 0){
+		return -2;
+	};
+
+	switch(WaitForSingleObject(vecEvent[nEventId], nMs)){
+	case WAIT_OBJECT_0:
+		return WAIT_OBJECT_0;
+	case WAIT_TIMEOUT:
+		return -3;
+	default:
+		return -4;
+	}
+}
+
+int ZUtil::WaitModel::FreeWait( int nEventId /*= 0*/ )
+{
+	if (nEventId < 0){
+		return -1;
+	};
+
+	size_t t = vecEvent.size();
+	if (nEventId >= t || t <= 0){
+		return -2;
+	}
+
+	return SetEvent(vecEvent[nEventId]);
+}
+
+int ZUtil::WaitModel::MulWait( int nMs , bool waitAll)
+{
+
+	size_t t = vecEvent.size();
+	if (t <= 0){
+		return -1;
+	}
+
+	HANDLE* pHandle = new HANDLE[t];
+	for (size_t i = 0; i < t; i++){
+		pHandle[i] = vecEvent[i];
+	}
+	int nRes = WaitForMultipleObjects(t, pHandle, waitAll, nMs);
+	switch(nRes){
+	case WAIT_TIMEOUT:
+		return WAIT_TIMEOUT;
+	case WAIT_FAILED:
+		return -2;
+	default:
+		return nRes - WAIT_OBJECT_0;
+	};
+}
+
+std::string ZUtil::Base64::Encode( char* pSrc, int nLen )
+{
+	//编码表
+	static const char EncodeTable[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	std::string strEncode;
+	unsigned char Tmp[4] = {0};
+	int LineLength = 0;
+	for(int i = 0;i < (int)(nLen / 3); i++)
+	{
+		Tmp[1] = *pSrc++;
+		Tmp[2] = *pSrc++;
+		Tmp[3] = *pSrc++;
+		strEncode += EncodeTable[Tmp[1] >> 2];
+		strEncode += EncodeTable[((Tmp[1] << 4) | (Tmp[2] >> 4)) & 0x3F];
+		strEncode += EncodeTable[((Tmp[2] << 2) | (Tmp[3] >> 6)) & 0x3F];
+		strEncode += EncodeTable[Tmp[3] & 0x3F];
+		if(LineLength += 4, LineLength == 76) {
+			strEncode += "\r\n";
+			LineLength = 0;
+		}
+	}
+	//对剩余数据进行编码
+	int Mod = nLen % 3;
+	if(Mod == 1){
+		Tmp[1] = *pSrc++;
+		strEncode += EncodeTable[(Tmp[1] & 0xFC) >> 2];
+		strEncode += EncodeTable[((Tmp[1] & 0x03) << 4)];
+		strEncode += "==";
+	}else if(Mod == 2){
+		Tmp[1] = *pSrc++;
+		Tmp[2] = *pSrc++;
+		strEncode += EncodeTable[(Tmp[1] & 0xFC) >> 2];
+		strEncode += EncodeTable[((Tmp[1] & 0x03) << 4) | ((Tmp[2] & 0xF0) >> 4)];
+		strEncode += EncodeTable[((Tmp[2] & 0x0F) << 2)];
+		strEncode += "=";
+	}
+	return strEncode;
+}
+
+std::string ZUtil::Base64::Decode( char* pSrc, int nLen )
+{
+	//解码表
+	static const char DecodeTable[] =
+	{
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+		62, // '+'
+		0, 0, 0,
+		63, // '/'
+		52, 53, 54, 55, 56, 57, 58, 59, 60, 61, // '0'-'9'
+		0, 0, 0, 0, 0, 0, 0,
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+		13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, // 'A'-'Z'
+		0, 0, 0, 0, 0, 0,
+		26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,
+		39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, // 'a'-'z'
+	};
+	//返回值
+	std::string strDecode;
+	int nValue;
+	int OutByte = 0;
+	int i = 0;
+	while (i < nLen)
+	{
+		if (*pSrc != '\r' && *pSrc!='\n'){
+			nValue = DecodeTable[*pSrc++] << 18;
+			nValue += DecodeTable[*pSrc++] << 12;
+			strDecode += (nValue & 0x00FF0000) >> 16;
+			OutByte++;
+			if (*pSrc != '=')	{
+				nValue += DecodeTable[*pSrc++] << 6;
+				strDecode += (nValue & 0x0000FF00) >> 8;
+				OutByte++;
+				if (*pSrc != '=')	{
+					nValue += DecodeTable[*pSrc++];
+					strDecode += nValue & 0x000000FF;
+					OutByte++;
+				}
+			}
+			i += 4;
+		}else{// 回车换行,跳过
+			pSrc++;
+			i++;
+		}
+	}
+	return strDecode;	
+}
+
+
+ZUtil::ZipModule::ZipModule() : hDll(nullptr)
+{
+	char szPath[1024];
+	sprintf(szPath, "%s\\zip.dll", ZUtil::GetApplicationPath(false));
+	/*hDll = ::LoadLibraryExA(szPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);*/
+	pFuncOpenZipFile = nullptr;
+	pFuncCreateZipFile = nullptr;
+	pFuncCloseZipFile = nullptr;
+	pFuncZip = nullptr;
+	pFuncUnZipFileCount = nullptr;
+	pFuncGetUnZipFile = nullptr;
+	pFuncUnZip = nullptr;
+	pFuncSetUnZipDir = nullptr;
+	hZip = nullptr;
+	bInitOk = false;
+
+	hDll = ::LoadLibraryA(szPath);
+	try{
+		if ( ! hDll){
+			throw "LoadLibrary fail";
+		}
+
+		pFuncOpenZipFile = (pOpenZipFile)GetProcAddress(hDll, "OpenZipFile");
+		if ( ! pFuncOpenZipFile){
+			throw "GetProcAddress OpenZipFile fail";
+		}
+		pFuncCreateZipFile = (pOpenZipFile)GetProcAddress(hDll, "CreateZipFile");
+		if ( ! pFuncCreateZipFile){
+			throw "GetProcAddress CreateZipFile fail!";
+		}
+		pFuncCloseZipFile = (pCloseZipFile)GetProcAddress(hDll, "CloseZipFile");
+		if ( ! pFuncCloseZipFile){
+			throw "GetProcAddress CloseZipFile fail!";
+		}
+		pFuncZip = (pZip)GetProcAddress(hDll, "Zip");
+		if ( ! pFuncZip){
+			throw "GetProcAddress Zip fail!";
+		}
+		pFuncUnZipFileCount = (pGetUnZipFileCount)GetProcAddress(hDll, "GetUnZipFileCount");
+		if ( ! pFuncUnZipFileCount){
+			throw "GetProcAddress GetUnZipFileCount fail!";
+		}
+		pFuncGetUnZipFile = (pGetUnZipFile)GetProcAddress(hDll, "GetUnZipFile");
+		if ( ! pFuncGetUnZipFile){
+			throw "GetProcAddress GetUnZipFile fail!";
+		}
+		pFuncUnZip = (pUnZip)GetProcAddress(hDll, "UnZip");
+		if ( ! pFuncUnZip){
+			throw "GetProcAddress UnZip fail!";
+		}
+		pFuncSetUnZipDir = (pSetUnZipDir)GetProcAddress(hDll, "SetUnZipDir");
+		if ( ! pFuncSetUnZipDir){
+			throw "GetProcAddress SetUnZipDir fail!";
+		}
+
+		bInitOk = true;
+	}
+	catch(char* ptr){
+		printf(ptr);
+	}
+}
+
+ZUtil::ZipModule::~ZipModule()
+{
+	if (hDll){
+		::FreeLibrary(hDll);
+	}
+}
+
+int ZUtil::ZipModule::OpenZip( char* pZipFile, char* pUnZipDir, char* pPassword /*= nullptr*/ )
+{
+	if ( ! bInitOk){
+		return -1;
+	}
+	hZip = pFuncOpenZipFile(pZipFile, pPassword);
+	if (hZip){
+		return pFuncSetUnZipDir(hZip, pUnZipDir);
+	}
+	return -1;
+}
+
+int ZUtil::ZipModule::CreateZip( char* pZipFile, char* pPassword /*= nullptr*/ )
+{
+	if ( ! bInitOk){
+		return -1;
+	}
+	hZip = pFuncCreateZipFile(pZipFile, pPassword);
+	return hZip == nullptr ? -1 : 0;
+}
+
+int ZUtil::ZipModule::GetFileCountsInZipFile()
+{
+	if ( ! bInitOk || hZip == nullptr){
+		return -1;
+	}
+
+	return pFuncUnZipFileCount(hZip);
+}
+
+int ZUtil::ZipModule::GetItemFileName( int nIndex, __out char* pFileName )
+{
+	return pFuncGetUnZipFile(hZip, nIndex, pFileName);
+}
+
+int ZUtil::ZipModule::UnzipItem( int nIndex )
+{
+	return pFuncUnZip(hZip, nIndex);
+}
+
+int ZUtil::ZipModule::UnZip()
+{
+	int nCount = pFuncUnZipFileCount(hZip);
+	int nUnzipCount  = 0;
+	for (int i = 0; i < nCount; i++){
+		if(pFuncUnZip(hZip, i) == 0){
+			nUnzipCount++;
+		}
+	}
+	return nUnzipCount;
+}
