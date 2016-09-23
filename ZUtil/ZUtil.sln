@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZUtil", "ZUtil.vcxproj", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Zip", "..\Zip\Zip.vcxproj", "{BBC617A9-2938-40B9-AF79-2909AF860882}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MD5", "..\MD5\MD5.vcxproj", "{F789A5E8-B6FB-4AC4-9B98-1C62D014BAB8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,6 +21,10 @@ Global
 		{BBC617A9-2938-40B9-AF79-2909AF860882}.Debug|Win32.Build.0 = Debug|Win32
 		{BBC617A9-2938-40B9-AF79-2909AF860882}.Release|Win32.ActiveCfg = Release|Win32
 		{BBC617A9-2938-40B9-AF79-2909AF860882}.Release|Win32.Build.0 = Release|Win32
+		{F789A5E8-B6FB-4AC4-9B98-1C62D014BAB8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F789A5E8-B6FB-4AC4-9B98-1C62D014BAB8}.Debug|Win32.Build.0 = Debug|Win32
+		{F789A5E8-B6FB-4AC4-9B98-1C62D014BAB8}.Release|Win32.ActiveCfg = Release|Win32
+		{F789A5E8-B6FB-4AC4-9B98-1C62D014BAB8}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

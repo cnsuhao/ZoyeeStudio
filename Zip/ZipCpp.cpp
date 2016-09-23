@@ -78,5 +78,5 @@ ZIP_API int UnZip( void* pZip, int nIndex )
 ZIP_API int SetUnZipDir( void* pZip, char* pDir )
 {
 	ToW(pDir, szDir);
-	SetUnzipBaseDir((HZIP)pZip, szDir);
+	return SetUnzipBaseDir((HZIP)pZip, szDir);
 }

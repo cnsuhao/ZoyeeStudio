@@ -9,50 +9,32 @@ SystemInfo
 	|__MemoryInfo
 	|__OSVerInfo
 	|__Visual(todo)
-
 Register
 	|__RegEnum
 	|__ValueType
-
 SocketConnect
 	|__SocketServer
 	|__SocketClient
-
 LockKey
 	|__Lock
-
 stringex
-
 ServiceManage
-
 FileManage
-
 Process
-
-Time(unfinish)
-
+Time(coding)
 Log
-
 FindFile
 	|__FileInfo
-
 FileAttribute
-
 Thread
-
 ThreadPool(coding)
-
 DebugView
-
 WaitModel
-
 Base64
-
-ZipModule(coding)
-
+ZipModule(coding) -- (need zip.dll)
 Pipe(todo)
-
-SQL(todo)
+SQL(todo) -- (need sql.dll)
+MD5 --(need md5.dll)
 
 /////////////////////////////////////////////////////////////////////////*/
 #include <windows.h>
@@ -84,6 +66,8 @@ typedef int (*pGetUnZipFileCount)(void* hZip);
 typedef int (*pGetUnZipFile)(void* pZip, int nIndex, char* pFileName);
 typedef int (*pUnZip)(void* hZip, int nIndex);
 typedef int (*pSetUnZipDir)(void* pZip, char* pDir);
+
+typedef void (*pMd5)( char* pInput, int nInputLen, __out char* pOutput32 );
 
 namespace ZUtil
 {
@@ -661,6 +645,17 @@ namespace ZUtil
 		pUnZip pFuncUnZip;
 		pSetUnZipDir pFuncSetUnZipDir;
 		void* hZip;
+		bool bInitOk;
+	};
+
+	class Md5{
+	public:
+		Md5();
+		~Md5();
+		void Code(char* pInput, int nLen, __out char* pOutput);
+	private:
+		HMODULE hDll;
+		pMd5 pFuncMd5;
 		bool bInitOk;
 	};
 	
