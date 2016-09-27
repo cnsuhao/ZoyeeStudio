@@ -31,10 +31,13 @@ ThreadPool(coding)
 DebugView
 WaitModel
 Base64
-ZipModule(coding) -- (need zip.dll)
 Pipe(todo)
+
+DllBase(coding)
+ZipModule(coding) -- (need zip.dll)
 SQL(todo) -- (need sql.dll)
 MD5 --(need md5.dll)
+TextHttpServer --(need tinyHttp.dll)
 
 /////////////////////////////////////////////////////////////////////////*/
 #include <windows.h>
@@ -68,6 +71,8 @@ typedef int (*pUnZip)(void* hZip, int nIndex);
 typedef int (*pSetUnZipDir)(void* pZip, char* pDir);
 
 typedef void (*pMd5)( char* pInput, int nInputLen, __out char* pOutput32 );
+typedef void(*pTextHttpServerOutput)(char* pAction, char* pMsg);
+typedef int(*pTextHttpStart)(int nPort, pTextHttpServerOutput pFunc);
 
 namespace ZUtil
 {
@@ -604,7 +609,17 @@ namespace ZUtil
 		static std::string Decode(char* pSrc, int nLen);
 	};
 
-	class ZipModule{
+	class DllBase{
+	public:
+		DllBase(char* pDllName);
+		virtual ~DllBase();
+	protected:
+		HMODULE hDll;
+		bool bDll;
+		bool bInitOk;
+	};
+
+	class ZipModule : public DllBase{
 	public:
 		ZipModule();
 		~ZipModule();
@@ -635,7 +650,6 @@ namespace ZUtil
 		typedef void (*pSetUnZipDir)(void* pZip, char* pDir);
 		*/
 	private:
-		HMODULE hDll;
 		pOpenZipFile pFuncOpenZipFile;
 		pOpenZipFile pFuncCreateZipFile;
 		pCloseZipFile pFuncCloseZipFile;
@@ -645,18 +659,24 @@ namespace ZUtil
 		pUnZip pFuncUnZip;
 		pSetUnZipDir pFuncSetUnZipDir;
 		void* hZip;
-		bool bInitOk;
 	};
 
-	class Md5{
+	class Md5 : public DllBase{
 	public:
 		Md5();
 		~Md5();
 		void Code(char* pInput, int nLen, __out char* pOutput);
 	private:
-		HMODULE hDll;
 		pMd5 pFuncMd5;
-		bool bInitOk;
+	};
+
+	class TextHttpServer : public DllBase{
+	public:
+		TextHttpServer(pTextHttpServerOutput pOutput = nullptr);
+		int Start(int nPort);
+	protected:
+		pTextHttpServerOutput pOutput;
+		pTextHttpStart pFuncTextHttpStart;
 	};
 	
 	bool CloseProcessDEP();

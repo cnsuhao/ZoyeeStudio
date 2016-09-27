@@ -7,6 +7,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Zip", "..\Zip\Zip.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MD5", "..\MD5\MD5.vcxproj", "{F789A5E8-B6FB-4AC4-9B98-1C62D014BAB8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TinyHttpD", "..\TinyHttpD\TinyHttpD.vcxproj", "{9D632D25-6865-4F67-B9AF-D1C54AE3D361}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A11613EA-F683-442D-8287-DED4E51CC120}"
+	ProjectSection(SolutionItems) = preProject
+		TextFile1.cpp = TextFile1.cpp
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -25,6 +32,10 @@ Global
 		{F789A5E8-B6FB-4AC4-9B98-1C62D014BAB8}.Debug|Win32.Build.0 = Debug|Win32
 		{F789A5E8-B6FB-4AC4-9B98-1C62D014BAB8}.Release|Win32.ActiveCfg = Release|Win32
 		{F789A5E8-B6FB-4AC4-9B98-1C62D014BAB8}.Release|Win32.Build.0 = Release|Win32
+		{9D632D25-6865-4F67-B9AF-D1C54AE3D361}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9D632D25-6865-4F67-B9AF-D1C54AE3D361}.Debug|Win32.Build.0 = Debug|Win32
+		{9D632D25-6865-4F67-B9AF-D1C54AE3D361}.Release|Win32.ActiveCfg = Release|Win32
+		{9D632D25-6865-4F67-B9AF-D1C54AE3D361}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
