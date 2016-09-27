@@ -25,14 +25,19 @@ int ThreadFunc(){
 }
 
 int main(){	
-	ZUtil::Md5 md5;
-	char sz[33];
-	md5.Code("hello", 5, sz);
+	ZUtil::TextHttpServer server;
+	server.Start(1000);
+	ZUtil::WaitModel model;
+	model.Wait(999999);
 
-	ZUtil::ZipModule zip;
+	//ZUtil::Md5 md5;
+	//char sz[33];
+	//md5.Code("hello", 5, sz);
+
+	/*ZUtil::ZipModule zip;
 	zip.OpenZip("x:\\1.zip", "x:\\222");
 	int n = zip.UnZip();
-
+	*/
 	std::vector<std::string> vec;
 	vec.push_back("YZ-xiaopiplayer.exe");
 

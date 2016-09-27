@@ -2756,11 +2756,8 @@ std::string ZUtil::Base64::Decode( char* pSrc, int nLen )
 }
 
 
-ZUtil::ZipModule::ZipModule() : hDll(nullptr)
+ZUtil::ZipModule::ZipModule() : DllBase("zip")
 {
-	char szPath[1024];
-	sprintf(szPath, "%s\\zip.dll", ZUtil::GetApplicationPath(false));
-	/*hDll = ::LoadLibraryExA(szPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);*/
 	pFuncOpenZipFile = nullptr;
 	pFuncCreateZipFile = nullptr;
 	pFuncCloseZipFile = nullptr;
@@ -2770,59 +2767,51 @@ ZUtil::ZipModule::ZipModule() : hDll(nullptr)
 	pFuncUnZip = nullptr;
 	pFuncSetUnZipDir = nullptr;
 	hZip = nullptr;
-	bInitOk = false;
-
-	hDll = ::LoadLibraryA(szPath);
-	try{
-		if ( ! hDll){
-			throw "LoadLibrary fail";
+	if (bDll){
+		try{
+			pFuncOpenZipFile = (pOpenZipFile)GetProcAddress(hDll, "OpenZipFile");
+			if ( ! pFuncOpenZipFile){
+				throw "GetProcAddress OpenZipFile fail";
+			}
+			pFuncCreateZipFile = (pOpenZipFile)GetProcAddress(hDll, "CreateZipFile");
+			if ( ! pFuncCreateZipFile){
+				throw "GetProcAddress CreateZipFile fail!";
+			}
+			pFuncCloseZipFile = (pCloseZipFile)GetProcAddress(hDll, "CloseZipFile");
+			if ( ! pFuncCloseZipFile){
+				throw "GetProcAddress CloseZipFile fail!";
+			}
+			pFuncZip = (pZip)GetProcAddress(hDll, "Zip");
+			if ( ! pFuncZip){
+				throw "GetProcAddress Zip fail!";
+			}
+			pFuncUnZipFileCount = (pGetUnZipFileCount)GetProcAddress(hDll, "GetUnZipFileCount");
+			if ( ! pFuncUnZipFileCount){
+				throw "GetProcAddress GetUnZipFileCount fail!";
+			}
+			pFuncGetUnZipFile = (pGetUnZipFile)GetProcAddress(hDll, "GetUnZipFile");
+			if ( ! pFuncGetUnZipFile){
+				throw "GetProcAddress GetUnZipFile fail!";
+			}
+			pFuncUnZip = (pUnZip)GetProcAddress(hDll, "UnZip");
+			if ( ! pFuncUnZip){
+				throw "GetProcAddress UnZip fail!";
+			}
+			pFuncSetUnZipDir = (pSetUnZipDir)GetProcAddress(hDll, "SetUnZipDir");
+			if ( ! pFuncSetUnZipDir){
+				throw "GetProcAddress SetUnZipDir fail!";
+			}
+			bInitOk = true;
 		}
-
-		pFuncOpenZipFile = (pOpenZipFile)GetProcAddress(hDll, "OpenZipFile");
-		if ( ! pFuncOpenZipFile){
-			throw "GetProcAddress OpenZipFile fail";
+		catch(char* ptr){
+			printf(ptr);
 		}
-		pFuncCreateZipFile = (pOpenZipFile)GetProcAddress(hDll, "CreateZipFile");
-		if ( ! pFuncCreateZipFile){
-			throw "GetProcAddress CreateZipFile fail!";
-		}
-		pFuncCloseZipFile = (pCloseZipFile)GetProcAddress(hDll, "CloseZipFile");
-		if ( ! pFuncCloseZipFile){
-			throw "GetProcAddress CloseZipFile fail!";
-		}
-		pFuncZip = (pZip)GetProcAddress(hDll, "Zip");
-		if ( ! pFuncZip){
-			throw "GetProcAddress Zip fail!";
-		}
-		pFuncUnZipFileCount = (pGetUnZipFileCount)GetProcAddress(hDll, "GetUnZipFileCount");
-		if ( ! pFuncUnZipFileCount){
-			throw "GetProcAddress GetUnZipFileCount fail!";
-		}
-		pFuncGetUnZipFile = (pGetUnZipFile)GetProcAddress(hDll, "GetUnZipFile");
-		if ( ! pFuncGetUnZipFile){
-			throw "GetProcAddress GetUnZipFile fail!";
-		}
-		pFuncUnZip = (pUnZip)GetProcAddress(hDll, "UnZip");
-		if ( ! pFuncUnZip){
-			throw "GetProcAddress UnZip fail!";
-		}
-		pFuncSetUnZipDir = (pSetUnZipDir)GetProcAddress(hDll, "SetUnZipDir");
-		if ( ! pFuncSetUnZipDir){
-			throw "GetProcAddress SetUnZipDir fail!";
-		}
-
-		bInitOk = true;
-	}
-	catch(char* ptr){
-		printf(ptr);
-	}
+	}	
 }
 
 ZUtil::ZipModule::~ZipModule()
 {
-	if (hDll){
-		::FreeLibrary(hDll);
-	}
+
 }
 
 int ZUtil::ZipModule::OpenZip( char* pZipFile, char* pUnZipDir, char* pPassword /*= nullptr*/ )
@@ -2877,34 +2866,61 @@ int ZUtil::ZipModule::UnZip()
 	return nUnzipCount;
 }
 
-ZUtil::Md5::Md5() : hDll(nullptr), pFuncMd5(nullptr), bInitOk(false)
+ZUtil::Md5::Md5() : DllBase("md5"), pFuncMd5(nullptr)
 {
-	char szPath[1024];
-	sprintf(szPath, "%s\\md5.dll", ZUtil::GetApplicationPath(false));
-	try{
-		hDll = ::LoadLibraryA(szPath);
-		if (hDll == nullptr){
-			throw "LoadLibrary fail!";
+	if (bDll){
+		try{		
+			pFuncMd5 = (pMd5)GetProcAddress(hDll, "md5");
+			if (pFuncMd5 == nullptr){
+				throw "GetProcAddress md5 fail!";
+			}
+			bInitOk = true;
+		}catch(char* pError){
+			printf("[catch exception]:%s", pError);
 		}
-		
-		pFuncMd5 = (pMd5)GetProcAddress(hDll, "md5");
-		if (pFuncMd5 == nullptr){
-			throw "GetProcAddress md5 fail!";
-		}
-		bInitOk = true;
-	}catch(char* pError){
-		printf("[catch exception]:%s", pError);
-	}
+	}	
 }
 
 ZUtil::Md5::~Md5()
 {
-	FreeDll(hDll);
 }
 
 void ZUtil::Md5::Code( char* pInput, int nLen, __out char* pOutput )
 {
 	if (bInitOk){
 		pFuncMd5(pInput, nLen, pOutput);
+	}
+}
+
+int ZUtil::TextHttpServer::Start( int nPort )
+{
+	return pFuncTextHttpStart(nPort, pOutput);	
+}
+
+ZUtil::TextHttpServer::TextHttpServer( pTextHttpServerOutput pOutput /*= nullptr*/ ) : DllBase("tinyhttp")
+{
+	this->pOutput = pOutput;
+	if (bDll){
+		pFuncTextHttpStart = (pTextHttpStart)GetProcAddress(hDll, "Start");
+	}
+}
+
+ZUtil::DllBase::DllBase( char* pDllName ) : hDll(nullptr), bDll(false), bInitOk(false)
+{
+	char szPath[1024];
+	sprintf(szPath, "%s\\%s.dll", ZUtil::GetApplicationPath(false), pDllName);
+	hDll = ::LoadLibraryA(szPath);
+	if (hDll){
+		bDll = true;
+	}
+}
+
+ZUtil::DllBase::~DllBase()
+{
+	if (bDll){
+		::FreeLibrary(hDll);
+		hDll = nullptr;
+		bDll = false;
+		bInitOk = false;
 	}
 }
