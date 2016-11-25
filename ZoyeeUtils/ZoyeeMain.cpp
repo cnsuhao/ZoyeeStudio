@@ -1,8 +1,7 @@
 #include "zoyeeUtils.h"
 #include <Windows.h>
 
-class CThreadTest : public ZoyeeUtils::CTask
-{
+class CThreadTest : public ZoyeeUtils::CTask{
 public:
 	CThreadTest(int nId);
 	void Run();
@@ -31,12 +30,35 @@ ZoyeeUtils::emCopyFileRes CopyFileCallback(long lTotalFileSize, long lTotalBytes
 void OnRecv(char* pBuff, int nLen, ZoyeeUtils::RecvType type, ZoyeeUtils::ISocket* pSocket);
 
 int main(){
-	ZoyeeUtils::ISocket* pClient = ZoyeeUtils::SocketFactory::MakeSocket(ZoyeeUtils::em_client, (void*)OnRecv);
-	pClient->Init("127.0.0.1", 4444);
-	while(1){
-		getchar();
-		pClient->Send("Hello", 6, 1, true);
+	int nScore = 0;
+	scanf("%d", &nScore);
+	if (nScore >= 90){
+		printf("A");
+	}else if (nScore >= 80){
+		printf("B");
+	}else if (nScore >= 70){
+		printf("C");
+	}else if (nScore >= 60){
+		printf("D");
+	}else{
+		printf("E");
 	}
+
+
+
+	ZoyeeUtils::CRegister reg(ZoyeeUtils::CRegister::em_local_machine, "Software\\7-Zip", true);
+	reg.EnumValue();
+	//reg.EnumSubKey();
+	/*reg.GetValue("Path");
+	reg.SetValue("Fuck", "223344", false);*/
+	//reg.DeleteKey("Hello");
+
+	//ZoyeeUtils::ISocket* pClient = ZoyeeUtils::SocketFactory::MakeSocket(ZoyeeUtils::em_client, (void*)OnRecv);
+	//pClient->Init("127.0.0.1", 4444);
+	//while(1){
+	//	getchar();
+	//	pClient->Send("Hello", 6, 1, true);
+	//}
 
 
 	//ZoyeeUtils::ISocket* pServer = ZoyeeUtils::SocketFactory::MakeSocket(ZoyeeUtils::em_server, (void*)OnRecv);

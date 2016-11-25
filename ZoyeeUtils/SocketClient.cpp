@@ -37,12 +37,16 @@ int ZoyeeUtils::SocketClient::Send( const char* pszBuff, int nLen )
 
 int ZoyeeUtils::SocketClient::Send( const char* pszBuff, int nLen, unsigned int nFailRetryTimes, bool bCallbackResults )
 {
-	for (int i = 0; i < nFailRetryTimes; i++){
+	for (unsigned int i = 0; i < nFailRetryTimes; i++){
 		if (send(GetSocket(), pszBuff, nLen, 0) != nLen){
-			GetRecvCallback()((char*)pszBuff, nLen, em_on_send_fail, this);
+			if (bCallbackResults){
+				GetRecvCallback()((char*)pszBuff, nLen, em_on_send_fail, this);
+			}			
 			continue;
 		}
-		GetRecvCallback()((char*)pszBuff, nLen, em_on_send_ok, this);
+		if (bCallbackResults){
+			GetRecvCallback()((char*)pszBuff, nLen, em_on_send_ok, this);
+		}		
 		break;
 	}
 	return nLen;

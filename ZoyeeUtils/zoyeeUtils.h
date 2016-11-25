@@ -10,5 +10,5 @@
 #include "ThreadEx.h"
 #include "FileManange.h"
 #include "SocketFactory.h"
-
+#include "RegEdit.h"
 #endif

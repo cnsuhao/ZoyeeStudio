@@ -29,6 +29,9 @@
     <Filter Include="Socket">
       <UniqueIdentifier>{0864d8c4-9bd0-467a-9a06-39de055934fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="注册表加强">
+      <UniqueIdentifier>{b22d11cb-3bc5-4eaf-be68-7e3ed74ca50a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TextCode.cpp">
@@ -67,6 +70,9 @@
     </ClCompile>
     <ClCompile Include="SocketServer.cpp">
       <Filter>Socket</Filter>
+    </ClCompile>
+    <ClCompile Include="RegEdit.cpp">
+      <Filter>注册表加强</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -109,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="SocketServer.h">
       <Filter>Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="RegEdit.h">
+      <Filter>注册表加强</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
