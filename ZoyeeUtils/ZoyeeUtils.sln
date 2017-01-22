@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZoyeeUtils", "ZoyeeUtils.vcxproj", "{473C0A80-07D0-49FA-B6B1-D58851B1E65B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RegVisualEditor", "..\RegVisualEditor\RegVisualEditor.vcxproj", "{5410251F-04D0-4804-815E-314B189CD19C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Hook", "..\Hook\Hook.vcxproj", "{48F0E8AF-C405-4BCF-A34D-2391C2EC79D6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HookMFC", "..\HookMFC\HookMFC.vcxproj", "{93C465E2-39C2-4BE1-B763-F60825D03012}"
+	ProjectSection(ProjectDependencies) = postProject
+		{48F0E8AF-C405-4BCF-A34D-2391C2EC79D6} = {48F0E8AF-C405-4BCF-A34D-2391C2EC79D6}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ApiHook", "..\ApiHook\ApiHook.vcxproj", "{9490A738-5816-4FC0-9973-D5CADBA5B452}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestHookAPI", "..\TestHookAPI\TestHookAPI.vcxproj", "{00083840-A8AE-45D5-BE66-03D0A882CD15}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MFC", "..\MFC\MFC.vcxproj", "{466D449B-A398-4A82-BDAD-1C88D9042C36}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{473C0A80-07D0-49FA-B6B1-D58851B1E65B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{473C0A80-07D0-49FA-B6B1-D58851B1E65B}.Debug|Win32.Build.0 = Debug|Win32
+		{473C0A80-07D0-49FA-B6B1-D58851B1E65B}.Release|Win32.ActiveCfg = Release|Win32
+		{473C0A80-07D0-49FA-B6B1-D58851B1E65B}.Release|Win32.Build.0 = Release|Win32
+		{5410251F-04D0-4804-815E-314B189CD19C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5410251F-04D0-4804-815E-314B189CD19C}.Debug|Win32.Build.0 = Debug|Win32
+		{5410251F-04D0-4804-815E-314B189CD19C}.Release|Win32.ActiveCfg = Release|Win32
+		{5410251F-04D0-4804-815E-314B189CD19C}.Release|Win32.Build.0 = Release|Win32
+		{48F0E8AF-C405-4BCF-A34D-2391C2EC79D6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{48F0E8AF-C405-4BCF-A34D-2391C2EC79D6}.Debug|Win32.Build.0 = Debug|Win32
+		{48F0E8AF-C405-4BCF-A34D-2391C2EC79D6}.Release|Win32.ActiveCfg = Release|Win32
+		{48F0E8AF-C405-4BCF-A34D-2391C2EC79D6}.Release|Win32.Build.0 = Release|Win32
+		{93C465E2-39C2-4BE1-B763-F60825D03012}.Debug|Win32.ActiveCfg = Debug|Win32
+		{93C465E2-39C2-4BE1-B763-F60825D03012}.Debug|Win32.Build.0 = Debug|Win32
+		{93C465E2-39C2-4BE1-B763-F60825D03012}.Release|Win32.ActiveCfg = Release|Win32
+		{93C465E2-39C2-4BE1-B763-F60825D03012}.Release|Win32.Build.0 = Release|Win32
+		{9490A738-5816-4FC0-9973-D5CADBA5B452}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9490A738-5816-4FC0-9973-D5CADBA5B452}.Debug|Win32.Build.0 = Debug|Win32
+		{9490A738-5816-4FC0-9973-D5CADBA5B452}.Release|Win32.ActiveCfg = Release|Win32
+		{9490A738-5816-4FC0-9973-D5CADBA5B452}.Release|Win32.Build.0 = Release|Win32
+		{00083840-A8AE-45D5-BE66-03D0A882CD15}.Debug|Win32.ActiveCfg = Debug|Win32
+		{00083840-A8AE-45D5-BE66-03D0A882CD15}.Debug|Win32.Build.0 = Debug|Win32
+		{00083840-A8AE-45D5-BE66-03D0A882CD15}.Release|Win32.ActiveCfg = Release|Win32
+		{00083840-A8AE-45D5-BE66-03D0A882CD15}.Release|Win32.Build.0 = Release|Win32
+		{466D449B-A398-4A82-BDAD-1C88D9042C36}.Debug|Win32.ActiveCfg = Debug|Win32
+		{466D449B-A398-4A82-BDAD-1C88D9042C36}.Debug|Win32.Build.0 = Debug|Win32
+		{466D449B-A398-4A82-BDAD-1C88D9042C36}.Release|Win32.ActiveCfg = Release|Win32
+		{466D449B-A398-4A82-BDAD-1C88D9042C36}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
