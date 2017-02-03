@@ -10,7 +10,7 @@
 #define LOG_ERROR 2
 #define LOG_NONE 3
 
-namespace Zoyee{	
+namespace ZoyeeUtils{	
 	static char* ARRAY_TYPE[] = {
 		" INFO", "DEBUG", "ERROR"
 	};
@@ -57,8 +57,8 @@ namespace Zoyee{
 	};
 }
 
-#define LLOG(nLogLv, pFmt, ...) Zoyee::CLiteLog::GetLog()->Log(nLogLv, __FUNCTION__, (char*)(strrchr(__FILE__, '\\') + 1), __LINE__, pFmt, __VA_ARGS__);
-#define LINFO(pFmt, ...) Zoyee::CLiteLog::GetLog()->Info(__FUNCTION__, (char*)(strrchr(__FILE__, '\\') + 1), __LINE__, pFmt, __VA_ARGS__);
-#define LDEBUG(pFmt, ...) Zoyee::CLiteLog::GetLog()->Debug(__FUNCTION__, (char*)(strrchr(__FILE__, '\\') + 1), __LINE__, pFmt, __VA_ARGS__);
-#define LERROR(pFmt, ...) Zoyee::CLiteLog::GetLog()->Error(__FUNCTION__, (char*)(strrchr(__FILE__, '\\') + 1), __LINE__, pFmt, __VA_ARGS__);
+#define LLOG(nLogLv, pFmt, ...) ZoyeeUtils::CLiteLog::GetLog()->Log(nLogLv, __FUNCTION__, (char*)(strrchr(__FILE__, '\\') + 1), __LINE__, pFmt, __VA_ARGS__);
+#define LINFO(pFmt, ...) ZoyeeUtils::CLiteLog::GetLog()->Info(__FUNCTION__, (char*)(strrchr(__FILE__, '\\') + 1), __LINE__, pFmt, __VA_ARGS__);
+#define LDEBUG(pFmt, ...) ZoyeeUtils::CLiteLog::GetLog()->Debug(__FUNCTION__, (char*)(strrchr(__FILE__, '\\') + 1), __LINE__, pFmt, __VA_ARGS__);
+#define LERROR(pFmt, ...) ZoyeeUtils::CLiteLog::GetLog()->Error(__FUNCTION__, (char*)(strrchr(__FILE__, '\\') + 1), __LINE__, pFmt, __VA_ARGS__);
 #endif

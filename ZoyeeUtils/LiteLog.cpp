@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+//#include "StdAfx.h"
 #include "LiteLog.h"
 #include <algorithm>
 #include <io.h>
@@ -26,7 +26,7 @@ int CreateDir( const char* pDir )
 	return 0;
 }
 
-Zoyee::CLiteLog::CLiteLog() : m_nLogLevel(LOG_INFO), pLogFile(0)
+ZoyeeUtils::CLiteLog::CLiteLog() : m_nLogLevel(LOG_INFO), pLogFile(0)
 {
 	::InitializeCriticalSection(&cs);
 	char szConfig[1024];
@@ -37,7 +37,7 @@ Zoyee::CLiteLog::CLiteLog() : m_nLogLevel(LOG_INFO), pLogFile(0)
 	Config(szConfig);
 }
 
-Zoyee::CLiteLog::~CLiteLog()
+ZoyeeUtils::CLiteLog::~CLiteLog()
 {
 	::DeleteCriticalSection(&cs);
 	if (pLogFile){
@@ -46,13 +46,13 @@ Zoyee::CLiteLog::~CLiteLog()
 	}
 }
 
-Zoyee::CLiteLog* Zoyee::CLiteLog::GetLog()
+ZoyeeUtils::CLiteLog* ZoyeeUtils::CLiteLog::GetLog()
 {
 	static CLiteLog self;
 	return &self;
 }
 
-void Zoyee::CLiteLog::Config( const char* pConfigFile )
+void ZoyeeUtils::CLiteLog::Config( const char* pConfigFile )
 {
 	/*
 	[set]
@@ -89,7 +89,7 @@ void Zoyee::CLiteLog::Config( const char* pConfigFile )
 	fflush(pLogFile);
 }
 
-void Zoyee::CLiteLog::Log( int nLogLevel, char* pModule, char* pCppFile, int nLine, char* pFmt, ... )
+void ZoyeeUtils::CLiteLog::Log( int nLogLevel, char* pModule, char* pCppFile, int nLine, char* pFmt, ... )
 {
 	if (nLogLevel < m_nLogLevel){
 		return;
@@ -104,7 +104,7 @@ void Zoyee::CLiteLog::Log( int nLogLevel, char* pModule, char* pCppFile, int nLi
 	UnLock();
 }
 
-void Zoyee::CLiteLog::Debug( char* pModule, char* pCppFile, int nLine, char* pFmt, ... )
+void ZoyeeUtils::CLiteLog::Debug( char* pModule, char* pCppFile, int nLine, char* pFmt, ... )
 {
 	if (m_nLogLevel > LOG_DEBUG){
 		return;
@@ -119,7 +119,7 @@ void Zoyee::CLiteLog::Debug( char* pModule, char* pCppFile, int nLine, char* pFm
 	UnLock();
 }
 
-void Zoyee::CLiteLog::Info( char* pModule, char* pCppFile, int nLine, char* pFmt, ... )
+void ZoyeeUtils::CLiteLog::Info( char* pModule, char* pCppFile, int nLine, char* pFmt, ... )
 {
 	if (m_nLogLevel > LOG_INFO){
 		return;
@@ -134,7 +134,7 @@ void Zoyee::CLiteLog::Info( char* pModule, char* pCppFile, int nLine, char* pFmt
 	UnLock();
 }
 
-void Zoyee::CLiteLog::Error( char* pModule, char* pCppFile, int nLine, char* pFmt, ... )
+void ZoyeeUtils::CLiteLog::Error( char* pModule, char* pCppFile, int nLine, char* pFmt, ... )
 {
 	if (m_nLogLevel > LOG_ERROR){
 		return;
@@ -149,7 +149,7 @@ void Zoyee::CLiteLog::Error( char* pModule, char* pCppFile, int nLine, char* pFm
 	UnLock();
 }
 
-void Zoyee::CLiteLog::SetLogLevel( int nLogLevel )
+void ZoyeeUtils::CLiteLog::SetLogLevel( int nLogLevel )
 {
 	m_nLogLevel = nLogLevel;
 }
