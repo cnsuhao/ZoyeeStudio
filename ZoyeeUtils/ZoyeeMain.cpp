@@ -31,8 +31,15 @@ void OnRecv(char* pBuff, int nLen, ZoyeeUtils::RecvType type, ZoyeeUtils::ISocke
 
 #include <time.h>
 #include <typeinfo>
+#include <map>
 
 int main(){	
+	std::map<int, int> _map;
+	_map[0] = 0;
+	_map[1] = 1;
+	for (auto iter = begin(_map); iter != end(_map); iter++){
+		printf("%d", iter->first);
+	}
 	ZoyeeUtils::ISocket* pIOCP = ZoyeeUtils::SocketFactory::MakeSocket(ZoyeeUtils::em_IOCP, OnRecv);
 	pIOCP->Init("127.0.0.1", 6666);
 	while(1){

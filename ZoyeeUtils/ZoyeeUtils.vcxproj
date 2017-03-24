@@ -97,6 +97,7 @@
   <ItemGroup>
     <ClInclude Include="3p\md5.h" />
     <ClInclude Include="CrashDebuger.h" />
+    <ClInclude Include="DllLoader.h" />
     <ClInclude Include="FileManange.h" />
     <ClInclude Include="IOCP.h" />
     <ClInclude Include="ISocket.h" />

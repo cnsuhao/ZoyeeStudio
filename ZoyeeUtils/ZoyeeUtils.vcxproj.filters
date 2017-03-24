@@ -41,6 +41,9 @@
     <Filter Include="日志类">
       <UniqueIdentifier>{ada48702-7c9e-4c66-bd53-cd563b910f6f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Dll相关">
+      <UniqueIdentifier>{58312bca-1658-495a-9f21-76fed5293ded}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TextCode.cpp">
@@ -154,6 +157,9 @@
     </ClInclude>
     <ClInclude Include="LiteLog.h">
       <Filter>日志类</Filter>
+    </ClInclude>
+    <ClInclude Include="DllLoader.h">
+      <Filter>Dll相关</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
