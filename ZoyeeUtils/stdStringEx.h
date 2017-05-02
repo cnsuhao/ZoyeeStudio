@@ -5,14 +5,15 @@
 #include <list>
 
 namespace ZoyeeUtils{
-	class CStdStringEx : public std::string{
+	class string : public std::string{
 	public:
-		CStdStringEx(int nNumber);
-		CStdStringEx();
-		CStdStringEx(std::string& str);
-		CStdStringEx(char* pText);
-		CStdStringEx(CStdStringEx& str);
-		CStdStringEx(const char* pFmt, ...);
+		string(int nNumber);
+		string();
+		string(std::string& str);
+		string(char* pText);
+		string(string& str);
+		string(const char* pFmt, ...);
+		string(std::wstring& wstr);
 		std::list<std::string> Split(std::string strSep = ",");
 		std::string Replace(std::string src, std::string desc);
 		static std::string Replace(std::string strText, std::string src, std::string desc);

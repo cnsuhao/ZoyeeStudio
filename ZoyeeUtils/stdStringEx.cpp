@@ -1,18 +1,18 @@
 #include "stdStringEx.h"
-using namespace ZoyeeUtils;
-using namespace std;
-
 #include <stdarg.h>
+#include <Windows.h>
+using namespace ZoyeeUtils;
 
-ZoyeeUtils::CStdStringEx::CStdStringEx( int nNumber ) : std::string()
+
+ZoyeeUtils::string::string( int nNumber ) : std::string()
 {
 	resize(16);
 	sprintf((char*)data(), "%d", nNumber);
 }
 
-std::list<std::string> ZoyeeUtils::CStdStringEx::Split( std::string strSep /*= ","*/ )
+std::list<std::string> ZoyeeUtils::string::Split( std::string strSep /*= ","*/ )
 {
-	list<string> lst;
+	std::list<std::string> lst;
 	string strTemp = data();
 	int nSepLen = strlen(strSep.c_str());
 	int nPos = strTemp.find(strSep);
@@ -27,7 +27,7 @@ std::list<std::string> ZoyeeUtils::CStdStringEx::Split( std::string strSep /*= "
 	return lst;
 }
 
-std::string ZoyeeUtils::CStdStringEx::Replace( std::string src, std::string desc )
+std::string ZoyeeUtils::string::Replace( std::string src, std::string desc )
 {
 	int nPos = find(src);
 	while(nPos != -1){
@@ -40,7 +40,7 @@ std::string ZoyeeUtils::CStdStringEx::Replace( std::string src, std::string desc
 	return *this;
 }
 
-std::string ZoyeeUtils::CStdStringEx::Replace( std::string strText, std::string src, std::string desc )
+std::string ZoyeeUtils::string::Replace( std::string strText, std::string src, std::string desc )
 {
 	int nPos = strText.find(src);
 	while(nPos != -1){
@@ -53,38 +53,64 @@ std::string ZoyeeUtils::CStdStringEx::Replace( std::string strText, std::string 
 	return strText;
 }
 
-int ZoyeeUtils::CStdStringEx::ToInt()
+int ZoyeeUtils::string::ToInt()
 {
 	return atoi(data());
 }
 
-float ZoyeeUtils::CStdStringEx::toFloat()
+float ZoyeeUtils::string::toFloat()
 {
 	return atof(data());
 }
 
-CStdStringEx::CStdStringEx() : std::string(){
+std::string ZoyeeUtils::string::ToStdString()
+{
+	return *this;
+}
+
+std::wstring ZoyeeUtils::string::ToStdWString()
+{
+	std::wstring wstr;
+	int nLen = ::MultiByteToWideChar(CP_ACP, 0, (char*)data(), -1, NULL, NULL);
+	if (nLen <= 0){
+		return L"";
+	}
+	wstr.resize(nLen);
+	MultiByteToWideChar(CP_ACP, 0, (char*)data(), -1, (wchar_t*)wstr.data(), nLen);
+	return wstr;
+}
+
+string::string() : std::string(){
 
 }
 
-CStdStringEx::CStdStringEx(std::string& str) : std::string(str){
+string::string(std::string& str) : std::string(str){
 
 }
 
-CStdStringEx::CStdStringEx(CStdStringEx& str) : std::string(){
+string::string(string& str) : std::string(){
 	resize(str.size());
 	memcpy((void*)data(), str.data(), str.size());
 }
 
-CStdStringEx::CStdStringEx(char* pText) : std::string(pText){
+string::string(char* pText) : std::string(pText){
 
 }
 
-CStdStringEx::CStdStringEx(const char* pFmt, ...){
+string::string(const char* pFmt, ...) : std::string(){
 	va_list ap;
 	va_start(ap, pFmt);
-	int nPrintLen = vprintf(pFmt, ap);
+	int nPrintLen = vprintf(pFmt, ap);	
 	resize(nPrintLen);
 	vsprintf((char*)data(), pFmt, ap);
 	va_end(ap);
+}
+
+string::string(std::wstring& wstr) : std::string(){
+	std::string str;
+	int nLen = ::WideCharToMultiByte(CP_ACP, 0, (wchar_t*)wstr.c_str(), -1, 0, 0, 0, 0);
+	if (nLen > 0){
+		resize(nLen);
+		WideCharToMultiByte(CP_ACP, 0, (wchar_t*)wstr.c_str(), -1, (char*)data(), nLen, 0, 0);
+	}
 }
