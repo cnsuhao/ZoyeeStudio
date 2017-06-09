@@ -65,6 +65,7 @@ public:
 };
 
 int main(){	
+	LINFO("Hello");
 	ZoyeeUtils::CSystemInfo::MonitorInfo i;
 	i.GetMonitor();
 	ZoyeeUtils::CSystemInfo::CpuInfo info;
