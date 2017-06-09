@@ -15,4 +15,5 @@
 #include "FileMemory.h"
 #include "IPCInterface.h"
 #include "SystemInfo.h"
+#include "LiteLog.h"
 #endif
