@@ -1,0 +1,8 @@
+package helloPkg;
+message helloMsg
+{
+    required string strName = 1;
+    required string strMail = 2;
+    required int32 nId = 3;
+    repeated helloMsg msg = 4;
+}
