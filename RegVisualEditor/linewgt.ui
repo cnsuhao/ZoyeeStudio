@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LineWgt</class>
+ <widget class="QWidget" name="LineWgt">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>414</width>
+    <height>100</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>100</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>LineWgt</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QGroupBox{
+	border: 1px solid rgb(180,180,255);
+}
+QLineEdit{
+	border: 1px solid rgb(180,180,255);
+	border-radius: 4px;
+}
+QLineEdit:hover{
+	border: 1px solid rgb(124,124,255);
+}
+QPushButton{
+	border: 1px solid rgb(180,180,255);
+}
+QPushButton:hover{
+	border: 1px solid rgb(124,124,255);
+}</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="title">
+      <string/>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

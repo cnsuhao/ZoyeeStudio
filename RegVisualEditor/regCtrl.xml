@@ -1,0 +1,9 @@
+<root>
+	<itemsGroup type="Number" text="数字">
+		<item name=""/>
+	</itemsGroup>
+	<itemsGroup type="NotNumber" text="非数字">
+	</itemsGroup>
+	<itemsGroup type="Word" text="字母">
+	</itemsGroup>
+</root>
