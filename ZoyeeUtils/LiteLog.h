@@ -58,15 +58,8 @@ namespace ZoyeeUtils{
 		FILE* pLogFile;
 	};
 }
-#ifdef _DEBUG
-#define LLOG(nLogLv, pFmt, ...) ZoyeeUtils::CLiteLog::GetLog()->Log(nLogLv, __FUNCTION__, (char*)(strrchr(__FILE__, '\\') + 1), __LINE__, pFmt, __VA_ARGS__);
-#define LINFO(pFmt, ...) ZoyeeUtils::CLiteLog::GetLog()->Info(__FUNCTION__, (char*)(strrchr(__FILE__, '\\') + 1), __LINE__, pFmt, __VA_ARGS__);
-#define LDEBUG(pFmt, ...) ZoyeeUtils::CLiteLog::GetLog()->Debug(__FUNCTION__, (char*)(strrchr(__FILE__, '\\') + 1), __LINE__, pFmt, __VA_ARGS__);
-#define LERROR(pFmt, ...) ZoyeeUtils::CLiteLog::GetLog()->Error(__FUNCTION__, (char*)(strrchr(__FILE__, '\\') + 1), __LINE__, pFmt, __VA_ARGS__);
-#else
 #define LLOG(nLogLv, pFmt, ...) ZoyeeUtils::CLiteLog::GetLog()->Log(nLogLv, __FUNCTION__, (__FILE__), __LINE__, pFmt, __VA_ARGS__);
 #define LINFO(pFmt, ...) ZoyeeUtils::CLiteLog::GetLog()->Info(__FUNCTION__, (__FILE__), __LINE__, pFmt, __VA_ARGS__);
 #define LDEBUG(pFmt, ...) ZoyeeUtils::CLiteLog::GetLog()->Debug(__FUNCTION__, (__FILE__), __LINE__, pFmt, __VA_ARGS__);
 #define LERROR(pFmt, ...) ZoyeeUtils::CLiteLog::GetLog()->Error(__FUNCTION__, (__FILE__), __LINE__, pFmt, __VA_ARGS__);
-#endif
 #endif
