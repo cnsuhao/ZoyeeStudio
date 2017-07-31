@@ -20,6 +20,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -74,11 +75,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="3p\JsonCpp\json_reader.cpp" />
-    <ClCompile Include="3p\JsonCpp\json_value.cpp" />
-    <ClCompile Include="3p\JsonCpp\json_writer.cpp" />
     <ClCompile Include="3p\md5.cpp" />
-    <ClCompile Include="3p\tinyXml2\tinyxml2.cpp" />
     <ClCompile Include="ConfigManagement.cpp" />
     <ClCompile Include="CrashDebuger.cpp" />
     <ClCompile Include="Debuger.cpp" />
@@ -106,17 +103,7 @@
     <ClCompile Include="ZoyeeMain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="3p\JsonCpp\json\autolink.h" />
-    <ClInclude Include="3p\JsonCpp\json\config.h" />
-    <ClInclude Include="3p\JsonCpp\json\features.h" />
-    <ClInclude Include="3p\JsonCpp\json\forwards.h" />
-    <ClInclude Include="3p\JsonCpp\json\json.h" />
-    <ClInclude Include="3p\JsonCpp\json\reader.h" />
-    <ClInclude Include="3p\JsonCpp\json\value.h" />
-    <ClInclude Include="3p\JsonCpp\json\writer.h" />
-    <ClInclude Include="3p\JsonCpp\json_batchallocator.h" />
     <ClInclude Include="3p\md5.h" />
-    <ClInclude Include="3p\tinyXml2\tinyxml2.h" />
     <ClInclude Include="AutoLockClass.h" />
     <ClInclude Include="AutoLockMacro.h" />
     <ClInclude Include="ConfigManagement.h" />
@@ -147,13 +134,7 @@
     <ClInclude Include="zoyeeUtils.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="3p\JsonCpp\json_internalarray.inl" />
-    <None Include="3p\JsonCpp\json_internalmap.inl" />
-    <None Include="3p\JsonCpp\json_valueiterator.inl" />
     <None Include="不好抽象, 反正原版也挺好用的就不抽象直接用了吧.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="ZoyeeUtils.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -62,15 +62,6 @@
     <Filter Include="读取配置文件\3p">
       <UniqueIdentifier>{636e0ae4-a75d-445f-b7bf-48d992c6fa46}</UniqueIdentifier>
     </Filter>
-    <Filter Include="读取配置文件\3p\tinyXml2">
-      <UniqueIdentifier>{a7121927-746f-438c-bd84-4a3686becb71}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="读取配置文件\3p\JsonCpp">
-      <UniqueIdentifier>{df3ef492-71cd-4a37-8b80-2deb0e837e54}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="读取配置文件\3p\JsonCpp\json">
-      <UniqueIdentifier>{77e3db38-b426-4373-950e-bb90be3c1bb8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="文件与内存的映射">
       <UniqueIdentifier>{82d35243-7599-4996-a709-81e59a0c6f8e}</UniqueIdentifier>
     </Filter>
@@ -139,18 +130,6 @@
     </ClCompile>
     <ClCompile Include="SystemInfo.cpp">
       <Filter>传统系统信息%28WinAPI%29</Filter>
-    </ClCompile>
-    <ClCompile Include="3p\JsonCpp\json_reader.cpp">
-      <Filter>读取配置文件\3p\JsonCpp</Filter>
-    </ClCompile>
-    <ClCompile Include="3p\JsonCpp\json_value.cpp">
-      <Filter>读取配置文件\3p\JsonCpp</Filter>
-    </ClCompile>
-    <ClCompile Include="3p\JsonCpp\json_writer.cpp">
-      <Filter>读取配置文件\3p\JsonCpp</Filter>
-    </ClCompile>
-    <ClCompile Include="3p\tinyXml2\tinyxml2.cpp">
-      <Filter>读取配置文件\3p\tinyXml2</Filter>
     </ClCompile>
     <ClCompile Include="ConfigManagement.cpp">
       <Filter>读取配置文件</Filter>
@@ -237,36 +216,6 @@
     <ClInclude Include="SystemInfo.h">
       <Filter>传统系统信息%28WinAPI%29</Filter>
     </ClInclude>
-    <ClInclude Include="3p\JsonCpp\json_batchallocator.h">
-      <Filter>读取配置文件\3p\JsonCpp</Filter>
-    </ClInclude>
-    <ClInclude Include="3p\JsonCpp\json\autolink.h">
-      <Filter>读取配置文件\3p\JsonCpp\json</Filter>
-    </ClInclude>
-    <ClInclude Include="3p\JsonCpp\json\config.h">
-      <Filter>读取配置文件\3p\JsonCpp\json</Filter>
-    </ClInclude>
-    <ClInclude Include="3p\JsonCpp\json\features.h">
-      <Filter>读取配置文件\3p\JsonCpp\json</Filter>
-    </ClInclude>
-    <ClInclude Include="3p\JsonCpp\json\forwards.h">
-      <Filter>读取配置文件\3p\JsonCpp\json</Filter>
-    </ClInclude>
-    <ClInclude Include="3p\JsonCpp\json\json.h">
-      <Filter>读取配置文件\3p\JsonCpp\json</Filter>
-    </ClInclude>
-    <ClInclude Include="3p\JsonCpp\json\reader.h">
-      <Filter>读取配置文件\3p\JsonCpp\json</Filter>
-    </ClInclude>
-    <ClInclude Include="3p\JsonCpp\json\value.h">
-      <Filter>读取配置文件\3p\JsonCpp\json</Filter>
-    </ClInclude>
-    <ClInclude Include="3p\JsonCpp\json\writer.h">
-      <Filter>读取配置文件\3p\JsonCpp\json</Filter>
-    </ClInclude>
-    <ClInclude Include="3p\tinyXml2\tinyxml2.h">
-      <Filter>读取配置文件\3p\tinyXml2</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h" />
     <ClInclude Include="ConfigManagement.h">
       <Filter>读取配置文件</Filter>
@@ -282,22 +231,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="3p\JsonCpp\json_internalarray.inl">
-      <Filter>读取配置文件\3p\JsonCpp</Filter>
-    </None>
-    <None Include="3p\JsonCpp\json_internalmap.inl">
-      <Filter>读取配置文件\3p\JsonCpp</Filter>
-    </None>
-    <None Include="3p\JsonCpp\json_valueiterator.inl">
-      <Filter>读取配置文件\3p\JsonCpp</Filter>
-    </None>
     <None Include="不好抽象, 反正原版也挺好用的就不抽象直接用了吧.txt">
       <Filter>读取配置文件</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="ZoyeeUtils.rc">
-      <Filter>资源文件</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>
