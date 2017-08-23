@@ -68,6 +68,12 @@
     <Filter Include="IPC">
       <UniqueIdentifier>{ea9fc8cf-3c17-4089-b77b-ff9fc0569d44}</UniqueIdentifier>
     </Filter>
+    <Filter Include="加密">
+      <UniqueIdentifier>{7aa9cd10-9df8-418d-8155-132f3831e846}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="加密\3p">
+      <UniqueIdentifier>{3ab85a17-1fe7-42b4-a3f5-e6a32afbf838}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="TextCode.cpp">
@@ -143,6 +149,12 @@
     </ClCompile>
     <ClCompile Include="ShareMemory.cpp">
       <Filter>IPC</Filter>
+    </ClCompile>
+    <ClCompile Include="Encrypt.cpp">
+      <Filter>加密</Filter>
+    </ClCompile>
+    <ClCompile Include="3p\BlowFish.cpp">
+      <Filter>加密\3p</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -228,6 +240,12 @@
     </ClInclude>
     <ClInclude Include="ShareMemory.h">
       <Filter>IPC</Filter>
+    </ClInclude>
+    <ClInclude Include="Encrypt.h">
+      <Filter>加密</Filter>
+    </ClInclude>
+    <ClInclude Include="3p\Blowfish.h">
+      <Filter>加密\3p</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

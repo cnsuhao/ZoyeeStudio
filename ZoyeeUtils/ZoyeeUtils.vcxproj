@@ -75,11 +75,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="3p\BlowFish.cpp" />
     <ClCompile Include="3p\md5.cpp" />
     <ClCompile Include="ConfigManagement.cpp" />
     <ClCompile Include="CrashDebuger.cpp" />
     <ClCompile Include="Debuger.cpp" />
     <ClCompile Include="DebugView.cpp" />
+    <ClCompile Include="Encrypt.cpp" />
     <ClCompile Include="FileManange.cpp" />
     <ClCompile Include="FileMemory.cpp" />
     <ClCompile Include="Guid.cpp" />
@@ -103,6 +105,7 @@
     <ClCompile Include="ZoyeeMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="3p\Blowfish.h" />
     <ClInclude Include="3p\md5.h" />
     <ClInclude Include="AutoLockClass.h" />
     <ClInclude Include="AutoLockMacro.h" />
@@ -110,6 +113,7 @@
     <ClInclude Include="CrashDebuger.h" />
     <ClInclude Include="DebugView.h" />
     <ClInclude Include="DllLoader.h" />
+    <ClInclude Include="Encrypt.h" />
     <ClInclude Include="FileManange.h" />
     <ClInclude Include="FileMemory.h" />
     <ClInclude Include="IOCP.h" />

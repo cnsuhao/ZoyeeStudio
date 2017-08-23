@@ -84,9 +84,11 @@ void ZoyeeUtils::CLiteLog::Config( const char* pConfigFile )
 	strcat(szDirPath, szFileName);
 	if (pLogFile){
 		fclose(pLogFile);
+	}	
+	if (m_nLogLevel <= 2){
+		pLogFile = fopen(szDirPath, "a");
+		fflush(pLogFile);
 	}		
-	pLogFile = fopen(szDirPath, "a");	
-	fflush(pLogFile);
 }
 
 void ZoyeeUtils::CLiteLog::Log( int nLogLevel, char* pModule, char* pCppFile, int nLine, char* pFmt, ... )
