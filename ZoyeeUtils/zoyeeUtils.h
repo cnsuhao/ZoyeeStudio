@@ -16,4 +16,5 @@
 #include "IPCInterface.h"
 #include "SystemInfo.h"
 #include "LiteLog.h"
+#include "Encrypt.h"
 #endif

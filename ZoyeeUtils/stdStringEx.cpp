@@ -10,21 +10,26 @@ ZoyeeUtils::string::string( int nNumber ) : std::string()
 	sprintf((char*)data(), "%d", nNumber);
 }
 
-std::list<std::string> ZoyeeUtils::string::Split( std::string strSep /*= ","*/ )
+std::vector<std::string> ZoyeeUtils::string::Split(std::string strSep /*= ","*/)
 {
-	std::list<std::string> lst;
+	std::vector<std::string> vec;
 	string strTemp = data();
 	int nSepLen = strlen(strSep.c_str());
 	int nPos = strTemp.find(strSep);
 	while(nPos != -1){
-		lst.push_back(strTemp.substr(0, nPos));
+		vec.push_back(strTemp.substr(0, nPos));
 		strTemp.erase(0, nPos + nSepLen);
 		nPos = strTemp.find(strSep);
 	}
 	if ( ! strTemp.empty()){
-		lst.push_back(strTemp);
+		vec.push_back(strTemp);
 	}
-	return lst;
+	return vec;
+}
+
+std::vector<std::string> ZoyeeUtils::string::Split(string str, std::string strSep /*= ","*/)
+{
+	return str.Split(strSep);
 }
 
 std::string ZoyeeUtils::string::Replace( std::string src, std::string desc )
@@ -68,6 +73,11 @@ std::string ZoyeeUtils::string::ToStdString()
 	return *this;
 }
 
+std::string ZoyeeUtils::string::ToStdString(string& str)
+{
+	return str.ToStdString();
+}
+
 std::wstring ZoyeeUtils::string::ToStdWString()
 {
 	std::wstring wstr;
@@ -78,6 +88,38 @@ std::wstring ZoyeeUtils::string::ToStdWString()
 	wstr.resize(nLen);
 	MultiByteToWideChar(CP_ACP, 0, (char*)data(), -1, (wchar_t*)wstr.data(), nLen);
 	return wstr;
+}
+
+std::wstring ZoyeeUtils::string::ToStdWString(string& str)
+{
+	return str.ToStdWString();
+}
+
+std::string ZoyeeUtils::string::Trim(std::string strWord)
+{
+	TrimLeft(strWord);
+	TrimRight(strWord);
+	return *this;
+}
+
+std::string ZoyeeUtils::string::TrimLeft(std::string strWord)
+{
+	int nFind = this->find(strWord);
+	while (nFind == 0){
+		*this = this->substr(strWord.length(), this->npos);
+		nFind = this->find(strWord);
+	}
+	return *this;
+}
+
+std::string ZoyeeUtils::string::TrimRight(std::string strWord)
+{
+	int nFind = this->rfind(strWord);
+	while (nFind == (this->length() - this->length())){
+		*this = this->substr(0, nFind);
+		nFind = this->rfind(strWord);
+	}
+	return *this;
 }
 
 string::string() : std::string(){
