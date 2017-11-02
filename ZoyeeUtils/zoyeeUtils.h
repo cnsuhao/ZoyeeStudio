@@ -36,5 +36,30 @@ p_inner_log_callback GetInnerLogCallback(){
 		return defaultInnerLog;
 	}
 };
+#if 0
+#if _MSC_VER > 1600
+#include <thread>
+template<class T>
+class CInstance{
+public:
+	static T* GetInstance(){
+		std::call_once(
+			m_flag,
+			[](){
+				m_pIntance = new T;
+			}
+		);
+		return m_pIntance;
+	};
+	static std::once_flag m_flag;
+	static T* m_pIntance;
+};
 
+template<class T>
+T* CInstance<T>::m_pIntance = nullptr;
+
+template<class T>
+std::once_flag CInstance<T>::m_flag;
+#endif
+#endif
 #endif

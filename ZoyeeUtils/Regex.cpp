@@ -31,6 +31,7 @@ std::vector<std::string>& CRegex::GetSearch()
 std::vector<std::string>& CRegex::GetSearch( char* pSrc, char* pRegex )
 {
 	static std::vector<std::string> vec;
+	vec.clear();
 	std::regex e(pRegex);
 	std::string strSrc(pSrc);
 
