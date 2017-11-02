@@ -31,10 +31,10 @@ namespace ZoyeeUtils{
 #pragma pack(pop)
 		void Start(bool bAsyc = false);
 		void SetPrintFunction(pPrintCallback _callback);
-
-	private:		
 		void AddProcess(const char* pProcessName);
 		void AddPid(const int nPid);
+
+	private:				
 		void RemoveProcess(const char* pProcessName);
 		void RemovePid(const int nPid);
 
